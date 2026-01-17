@@ -54,6 +54,9 @@
             min-height: 100vh;
             padding-bottom: 100px;
             -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         /* Header */
@@ -101,6 +104,7 @@
             cursor: pointer;
             transition: var(--transition);
             -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
         .icon-btn:hover, .icon-btn:active {
@@ -236,6 +240,7 @@
             white-space: nowrap;
             transition: var(--transition);
             -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
         .filter-tab.active, .filter-tab:hover {
@@ -279,10 +284,12 @@
             padding: 12px 15px;
             border: 2px solid var(--gray-200);
             border-radius: var(--radius-sm);
-            font-size: 1rem;
+            font-size: 16px; /* Prevents zoom on iOS */
             font-family: inherit;
             transition: var(--transition);
             background: var(--white);
+            -webkit-appearance: none;
+            appearance: none;
         }
 
         input:focus, select:focus, textarea:focus {
@@ -323,6 +330,7 @@
             gap: 8px;
             transition: var(--transition);
             -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
         .btn-primary {
@@ -378,6 +386,7 @@
             box-shadow: var(--shadow);
             transition: var(--transition);
             cursor: pointer;
+            touch-action: manipulation;
         }
 
         .expense-item:active {
@@ -496,6 +505,7 @@
             box-shadow: var(--shadow);
             transition: var(--transition);
             cursor: pointer;
+            touch-action: manipulation;
         }
 
         .friend-card:active {
@@ -569,7 +579,7 @@
             flex: 1;
         }
 
-        /* Bottom Navigation */
+        /* Bottom Navigation - FIXED */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -578,9 +588,9 @@
             background: var(--white);
             box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
             display: flex;
-            justify-content: space-around;
+            justify-content: space-between;
             align-items: flex-end;
-            padding: 8px 0 12px;
+            padding: 8px 10px 12px;
             z-index: 100;
             height: 70px;
         }
@@ -589,7 +599,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 6px 12px;
+            justify-content: center;
+            padding: 6px 8px;
             color: var(--gray-500);
             text-decoration: none;
             font-size: 0.7rem;
@@ -598,7 +609,10 @@
             border: none;
             background: none;
             -webkit-tap-highlight-color: transparent;
-            min-width: 60px;
+            touch-action: manipulation;
+            flex: 1;
+            min-width: 0;
+            height: 50px;
         }
 
         .nav-item .material-icons {
@@ -612,7 +626,7 @@
 
         .nav-item.add-btn {
             position: relative;
-            top: -20px;
+            top: -15px;
             background: var(--primary);
             color: var(--white);
             width: 56px;
@@ -623,7 +637,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            flex: 0 0 56px;
             min-width: 56px;
+            max-width: 56px;
         }
 
         .nav-item.add-btn:hover, .nav-item.add-btn:active {
@@ -668,6 +684,7 @@
             max-height: 90vh;
             overflow-y: auto;
             animation: slideUp 0.3s ease;
+            -webkit-overflow-scrolling: touch;
         }
 
         @keyframes slideUp {
@@ -706,6 +723,7 @@
             color: var(--gray-500);
             cursor: pointer;
             padding: 5px;
+            touch-action: manipulation;
         }
 
         .modal-body {
@@ -733,6 +751,7 @@
             text-align: center;
             cursor: pointer;
             transition: var(--transition);
+            touch-action: manipulation;
         }
 
         .category-option:hover {
@@ -776,6 +795,7 @@
             border-radius: 6px;
             transition: var(--transition);
             -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
         .tab.active {
@@ -838,6 +858,7 @@
         .transaction-history {
             max-height: 300px;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .history-item {
@@ -890,6 +911,7 @@
             cursor: pointer;
             transition: var(--transition);
             flex-shrink: 0;
+            touch-action: manipulation;
         }
 
         .toggle.active {
@@ -1204,6 +1226,7 @@
             color: var(--gray-500);
             cursor: pointer;
             padding: 5px;
+            touch-action: manipulation;
         }
 
         .modal-header {
@@ -1220,7 +1243,7 @@
             Expense Manager
         </h1>
         <div class="header-actions">
-            <button class="icon-btn" onclick="openModal('settingsModal')" title="Settings">
+            <button class="icon-btn" id="settingsBtn" title="Settings">
                 <span class="material-icons">settings</span>
             </button>
         </div>
@@ -1281,7 +1304,7 @@
                     <label>To</label>
                     <input type="date" id="endDate">
                 </div>
-                <button class="btn btn-primary btn-sm" onclick="applyDateRange()">
+                <button class="btn btn-primary btn-sm" id="applyDateRangeBtn">
                     Apply
                 </button>
             </div>
@@ -1307,7 +1330,7 @@
                     <span class="material-icons">receipt_long</span>
                     Recent Transactions
                 </h3>
-                <button class="btn btn-sm btn-secondary" onclick="showPage('transactionsPage')">
+                <button class="btn btn-sm btn-secondary" id="viewAllTransactionsBtn">
                     View All
                 </button>
             </div>
@@ -1322,7 +1345,7 @@
         <!-- Search -->
         <div class="search-bar" style="margin-bottom: 20px;">
             <span class="material-icons">search</span>
-            <input type="text" id="searchTransactions" placeholder="Search transactions..." oninput="filterTransactions()">
+            <input type="text" id="searchTransactions" placeholder="Search transactions...">
         </div>
 
         <!-- Filter Section -->
@@ -1398,7 +1421,7 @@
                     <span class="material-icons">groups</span>
                     Friends
                 </h3>
-                <button class="btn btn-sm btn-primary" onclick="openAddFriendModal()">
+                <button class="btn btn-sm btn-primary" id="addFriendBtn">
                     <span class="material-icons">person_add</span>
                     Add
                 </button>
@@ -1412,23 +1435,23 @@
 
 <!-- Bottom Navigation -->
 <nav class="bottom-nav">
-    <button class="nav-item active" data-page="dashboardPage" onclick="showPage('dashboardPage')">
+    <button class="nav-item active" data-page="dashboardPage">
         <span class="material-icons">dashboard</span>
         <span>Home</span>
     </button>
-    <button class="nav-item" data-page="transactionsPage" onclick="showPage('transactionsPage')">
+    <button class="nav-item" data-page="transactionsPage">
         <span class="material-icons">receipt_long</span>
         <span>Transactions</span>
     </button>
-    <button class="nav-item add-btn" onclick="openModal('addExpenseModal')">
+    <button class="nav-item add-btn" id="addExpenseBtn">
         <span class="material-icons">add</span>
         <span></span>
     </button>
-    <button class="nav-item" data-page="statsPage" onclick="showPage('statsPage')">
+    <button class="nav-item" data-page="statsPage">
         <span class="material-icons">analytics</span>
         <span>Stats</span>
     </button>
-    <button class="nav-item" data-page="friendsPage" onclick="showPage('friendsPage')">
+    <button class="nav-item" data-page="friendsPage">
         <span class="material-icons">groups</span>
         <span>Friends</span>
     </button>
@@ -1442,17 +1465,17 @@
                 <span class="material-icons">add_circle</span>
                 Add Transaction
             </h2>
-            <button class="modal-close" onclick="closeModal('addExpenseModal')">
+            <button class="modal-close" id="closeExpenseModal">
                 <span class="material-icons">close</span>
             </button>
         </div>
         <div class="modal-body">
             <!-- Transaction Type Tabs -->
             <div class="tabs" id="transactionTypeTabs">
-                <button class="tab active" data-type="expense" onclick="switchTransactionType('expense')">
+                <button class="tab active" data-type="expense">
                     Expense
                 </button>
-                <button class="tab" data-type="income" onclick="switchTransactionType('income')">
+                <button class="tab" data-type="income">
                     Income
                 </button>
             </div>
@@ -1562,13 +1585,13 @@
                 <div class="form-group" id="splitSection">
                     <div class="toggle-container" style="margin-bottom: 15px;">
                         <span>Split with friends</span>
-                        <div class="toggle" id="splitToggle" onclick="toggleSplit()"></div>
+                        <div class="toggle" id="splitToggle"></div>
                     </div>
                     <div id="splitDetails" style="display: none;">
                         <div id="splitItems">
                             <!-- Split items will be added here -->
                         </div>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="addSplitItem()">
+                        <button type="button" class="btn btn-secondary btn-sm" id="addSplitItemBtn">
                             <span class="material-icons">add</span>
                             Add Person
                         </button>
@@ -1582,8 +1605,8 @@
             </form>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-secondary" onclick="closeModal('addExpenseModal')">Cancel</button>
-            <button class="btn btn-primary" onclick="saveExpense()">
+            <button class="btn btn-secondary" id="cancelExpenseBtn">Cancel</button>
+            <button class="btn btn-primary" id="saveExpenseBtn">
                 <span class="material-icons">save</span>
                 Save
             </button>
@@ -1599,7 +1622,7 @@
                 <span class="material-icons">person_add</span>
                 Add Friend
             </h2>
-            <button class="modal-close" onclick="closeModal('addFriendModal')">
+            <button class="modal-close" id="closeFriendModal">
                 <span class="material-icons">close</span>
             </button>
         </div>
@@ -1621,8 +1644,8 @@
             </form>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-secondary" onclick="closeModal('addFriendModal')">Cancel</button>
-            <button class="btn btn-primary" onclick="saveFriend()">
+            <button class="btn btn-secondary" id="cancelFriendBtn">Cancel</button>
+            <button class="btn btn-primary" id="saveFriendBtn">
                 <span class="material-icons">save</span>
                 Save
             </button>
@@ -1638,10 +1661,10 @@
                 <span class="material-icons">person</span>
                 Friend Details
             </h2>
-            <button class="edit-friend-btn" onclick="editCurrentFriend()" title="Edit">
+            <button class="edit-friend-btn" id="editFriendBtn" title="Edit">
                 <span class="material-icons">edit</span>
             </button>
-            <button class="modal-close" onclick="closeModal('friendDetailModal')">
+            <button class="modal-close" id="closeFriendDetailModal">
                 <span class="material-icons">close</span>
             </button>
         </div>
@@ -1658,9 +1681,9 @@
             </div>
 
             <div class="tabs" id="friendActionTabs">
-                <button class="tab active" data-action="give" onclick="showFriendAction('give')">I Gave</button>
-                <button class="tab" data-action="receive" onclick="showFriendAction('receive')">I Received</button>
-                <button class="tab" data-action="history" onclick="showFriendAction('history')">History</button>
+                <button class="tab active" data-action="give">I Gave</button>
+                <button class="tab" data-action="receive">I Received</button>
+                <button class="tab" data-action="history">History</button>
             </div>
 
             <div id="friendActionGive" class="friend-action-section">
@@ -1672,7 +1695,7 @@
                     <label>Description</label>
                     <input type="text" id="giveDescription" placeholder="What for?">
                 </div>
-                <button class="btn btn-primary btn-block" onclick="recordFriendTransaction('give')">
+                <button class="btn btn-primary btn-block" id="recordGiveBtn">
                     <span class="material-icons">arrow_upward</span>
                     Record Payment
                 </button>
@@ -1687,7 +1710,7 @@
                     <label>Description</label>
                     <input type="text" id="receiveDescription" placeholder="What for?">
                 </div>
-                <button class="btn btn-success btn-block" onclick="recordFriendTransaction('receive')">
+                <button class="btn btn-success btn-block" id="recordReceiveBtn">
                     <span class="material-icons">arrow_downward</span>
                     Record Receipt
                 </button>
@@ -1700,11 +1723,11 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-danger" onclick="deleteFriend()">
+            <button class="btn btn-danger" id="deleteFriendBtn">
                 <span class="material-icons">delete</span>
                 Delete
             </button>
-            <button class="btn btn-secondary" onclick="settleUp()">
+            <button class="btn btn-secondary" id="settleUpBtn">
                 <span class="material-icons">done_all</span>
                 Settle Up
             </button>
@@ -1720,7 +1743,7 @@
                 <span class="material-icons">settings</span>
                 Settings
             </h2>
-            <button class="modal-close" onclick="closeModal('settingsModal')">
+            <button class="modal-close" id="closeSettingsModal">
                 <span class="material-icons">close</span>
             </button>
         </div>
@@ -1743,16 +1766,16 @@
             <div class="card" style="margin-top: 20px;">
                 <h4 style="margin-bottom: 15px;">Data Management</h4>
                 <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button class="btn btn-secondary" onclick="exportData()">
+                    <button class="btn btn-secondary" id="exportDataBtn">
                         <span class="material-icons">download</span>
                         Export
                     </button>
-                    <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">
+                    <button class="btn btn-secondary" id="importDataBtn">
                         <span class="material-icons">upload</span>
                         Import
                     </button>
-                    <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
-                    <button class="btn btn-danger" onclick="clearAllData()">
+                    <input type="file" id="importFile" accept=".json" style="display: none;">
+                    <button class="btn btn-danger" id="clearAllDataBtn">
                         <span class="material-icons">delete_forever</span>
                         Clear All
                     </button>
@@ -1760,7 +1783,7 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+            <button class="btn btn-primary" id="saveSettingsBtn">Save Settings</button>
         </div>
     </div>
 </div>
@@ -1771,7 +1794,7 @@
         <h3 id="confirmTitle">Confirm</h3>
         <p id="confirmMessage">Are you sure?</p>
         <div class="confirm-buttons">
-            <button class="btn btn-secondary" onclick="closeConfirmDialog()">Cancel</button>
+            <button class="btn btn-secondary" id="confirmCancelBtn">Cancel</button>
             <button class="btn btn-primary" id="confirmYesBtn">Yes</button>
         </div>
     </div>
@@ -1786,8 +1809,8 @@
             <div class="pending-split-item" id="matchingSplitItem"></div>
         </div>
         <div class="confirm-buttons" style="flex-wrap: wrap;">
-            <button class="btn btn-secondary btn-sm" onclick="closeSettleSplitDialog(false)">Record as New</button>
-            <button class="btn btn-success btn-sm" onclick="closeSettleSplitDialog(true)">Settle This Split</button>
+            <button class="btn btn-secondary btn-sm" id="settleSplitNewBtn">Record as New</button>
+            <button class="btn btn-success btn-sm" id="settleSplitYesBtn">Settle This Split</button>
         </div>
     </div>
 </div>
@@ -1798,8 +1821,8 @@
         <h3>Update Original Transaction?</h3>
         <p id="updateTransactionMessage"></p>
         <div class="confirm-buttons">
-            <button class="btn btn-secondary" onclick="closeUpdateTransactionDialog(false)">Keep Original</button>
-            <button class="btn btn-primary" onclick="closeUpdateTransactionDialog(true)">Update Amount</button>
+            <button class="btn btn-secondary" id="updateTransactionNoBtn">Keep Original</button>
+            <button class="btn btn-primary" id="updateTransactionYesBtn">Update Amount</button>
         </div>
     </div>
 </div>
@@ -2111,16 +2134,6 @@
         }
     }
 
-    // Close modal on overlay click
-    document.querySelectorAll('.modal-overlay').forEach(overlay => {
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) {
-                overlay.classList.remove('show');
-                document.body.style.overflow = '';
-            }
-        });
-    });
-
     // ==================== EXPENSE MANAGEMENT ====================
     function resetExpenseForm() {
         document.getElementById('expenseForm').reset();
@@ -2134,15 +2147,18 @@
 
         // Reset expense category selection
         document.querySelectorAll('#categoryGrid .category-option').forEach(opt => opt.classList.remove('selected'));
-        document.querySelector('#categoryGrid .category-option[data-category="food"]').classList.add('selected');
+        const foodOption = document.querySelector('#categoryGrid .category-option[data-category="food"]');
+        if (foodOption) foodOption.classList.add('selected');
 
         // Reset income category selection
         document.querySelectorAll('#incomeCategoryGrid .category-option').forEach(opt => opt.classList.remove('selected'));
-        document.querySelector('#incomeCategoryGrid .category-option[data-category="salary"]').classList.add('selected');
+        const salaryOption = document.querySelector('#incomeCategoryGrid .category-option[data-category="salary"]');
+        if (salaryOption) salaryOption.classList.add('selected');
 
         // Reset tabs
         document.querySelectorAll('#transactionTypeTabs .tab').forEach(tab => tab.classList.remove('active'));
-        document.querySelector('#transactionTypeTabs .tab[data-type="expense"]').classList.add('active');
+        const expenseTab = document.querySelector('#transactionTypeTabs .tab[data-type="expense"]');
+        if (expenseTab) expenseTab.classList.add('active');
 
         // Show expense categories, hide income categories
         document.getElementById('expenseCategorySection').style.display = 'block';
@@ -2168,24 +2184,6 @@
         document.getElementById('incomeCategorySection').style.display = type === 'income' ? 'block' : 'none';
         document.getElementById('splitSection').style.display = type === 'expense' ? 'block' : 'none';
     }
-
-    // Category selection for expenses
-    document.getElementById('categoryGrid').addEventListener('click', (e) => {
-        const option = e.target.closest('.category-option');
-        if (option) {
-            document.querySelectorAll('#categoryGrid .category-option').forEach(opt => opt.classList.remove('selected'));
-            option.classList.add('selected');
-        }
-    });
-
-    // Category selection for income
-    document.getElementById('incomeCategoryGrid').addEventListener('click', (e) => {
-        const option = e.target.closest('.category-option');
-        if (option) {
-            document.querySelectorAll('#incomeCategoryGrid .category-option').forEach(opt => opt.classList.remove('selected'));
-            option.classList.add('selected');
-        }
-    });
 
     function toggleSplit() {
         const toggle = document.getElementById('splitToggle');
@@ -2213,12 +2211,12 @@
         });
 
         div.innerHTML = `
-                <select class="split-friend">${friendOptions}</select>
-                <input type="number" class="split-amount" placeholder="Amount" step="0.01" inputmode="decimal">
-                <button type="button" class="icon-btn" onclick="removeSplitItem('${itemId}')">
-                    <span class="material-icons">close</span>
-                </button>
-            `;
+            <select class="split-friend">${friendOptions}</select>
+            <input type="number" class="split-amount" placeholder="Amount" step="0.01" inputmode="decimal">
+            <button type="button" class="icon-btn" data-split-id="${itemId}">
+                <span class="material-icons">close</span>
+            </button>
+        `;
 
         splitItems.appendChild(div);
     }
@@ -2282,7 +2280,7 @@
                         id: generateId(),
                         friendId,
                         amount: splitAmount,
-                        type: 'give', // You gave money (they owe you)
+                        type: 'give',
                         description: `Split: ${description}`,
                         date: date,
                         expenseId: id,
@@ -2428,12 +2426,12 @@
 
         if (sorted.length === 0) {
             container.innerHTML = `
-                    <div class="empty-state">
-                        <span class="material-icons">receipt_long</span>
-                        <h3>No transactions yet</h3>
-                        <p>Add your first expense to get started</p>
-                    </div>
-                `;
+                <div class="empty-state">
+                    <span class="material-icons">receipt_long</span>
+                    <h3>No transactions yet</h3>
+                    <p>Add your first expense to get started</p>
+                </div>
+            `;
             return;
         }
 
@@ -2447,30 +2445,30 @@
         const pendingSplits = hasSplits ? expense.splits.filter(s => !s.settled).length : 0;
 
         return `
-                <li class="expense-item" onclick="editExpense('${expense.id}')">
-                    <div class="expense-icon ${cat.class}">
-                        <span class="material-icons">${cat.icon}</span>
+            <li class="expense-item" data-expense-id="${expense.id}">
+                <div class="expense-icon ${cat.class}">
+                    <span class="material-icons">${cat.icon}</span>
+                </div>
+                <div class="expense-details">
+                    <div class="expense-title">
+                        ${expense.description}
+                        ${pendingSplits > 0 ? `<span class="split-badge"><span class="material-icons" style="font-size:10px;">group</span> ${pendingSplits} pending</span>` : ''}
                     </div>
-                    <div class="expense-details">
-                        <div class="expense-title">
-                            ${expense.description}
-                            ${pendingSplits > 0 ? `<span class="split-badge"><span class="material-icons" style="font-size:10px;">group</span> ${pendingSplits} pending</span>` : ''}
-                        </div>
-                        <div class="expense-meta">
-                            <span><span class="material-icons">event</span>${formatDate(expense.date)}</span>
-                            ${expense.time ? `<span><span class="material-icons">schedule</span>${formatTime(expense.time)}</span>` : ''}
-                        </div>
+                    <div class="expense-meta">
+                        <span><span class="material-icons">event</span>${formatDate(expense.date)}</span>
+                        ${expense.time ? `<span><span class="material-icons">schedule</span>${formatTime(expense.time)}</span>` : ''}
                     </div>
-                    <div class="expense-amount ${expense.type}">
-                        ${isExpense ? '-' : '+'}${formatCurrency(expense.amount)}
-                    </div>
-                    <div class="expense-actions" onclick="event.stopPropagation()">
-                        <button class="icon-btn delete" onclick="deleteExpense('${expense.id}')" title="Delete">
-                            <span class="material-icons">delete</span>
-                        </button>
-                    </div>
-                </li>
-            `;
+                </div>
+                <div class="expense-amount ${expense.type}">
+                    ${isExpense ? '-' : '+'}${formatCurrency(expense.amount)}
+                </div>
+                <div class="expense-actions">
+                    <button class="icon-btn delete" data-delete-expense="${expense.id}" title="Delete">
+                        <span class="material-icons">delete</span>
+                    </button>
+                </div>
+            </li>
+        `;
     }
 
     function updateExpenseChart(expenses) {
@@ -2492,11 +2490,11 @@
 
         if (data.length === 0) {
             ctx.canvas.parentElement.innerHTML = `
-                    <div class="empty-state" style="height: 250px; display: flex; flex-direction: column; justify-content: center;">
-                        <span class="material-icons">pie_chart</span>
-                        <p>No expense data to display</p>
-                    </div>
-                `;
+                <div class="empty-state" style="height: 250px; display: flex; flex-direction: column; justify-content: center;">
+                    <span class="material-icons">pie_chart</span>
+                    <p>No expense data to display</p>
+                </div>
+            `;
             return;
         }
 
@@ -2545,12 +2543,12 @@
 
         if (expenses.length === 0) {
             container.innerHTML = `
-                    <div class="empty-state">
-                        <span class="material-icons">receipt_long</span>
-                        <h3>No transactions found</h3>
-                        <p>Try changing the filter or add a new expense</p>
-                    </div>
-                `;
+                <div class="empty-state">
+                    <span class="material-icons">receipt_long</span>
+                    <h3>No transactions found</h3>
+                    <p>Try changing the filter or add a new expense</p>
+                </div>
+            `;
             return;
         }
 
@@ -2579,16 +2577,16 @@
             }, 0);
 
             html += `
-                    <div class="date-group">
-                        <div class="date-header">
-                            <span>${formatDate(date)}</span>
-                            <span class="date-total">${dayTotal >= 0 ? '-' : '+'}${formatCurrency(dayTotal)}</span>
-                        </div>
-                        <ul class="expense-list">
-                            ${dayExpenses.map(e => createExpenseItem(e)).join('')}
-                        </ul>
+                <div class="date-group">
+                    <div class="date-header">
+                        <span>${formatDate(date)}</span>
+                        <span class="date-total">${dayTotal >= 0 ? '-' : '+'}${formatCurrency(dayTotal)}</span>
                     </div>
-                `;
+                    <ul class="expense-list">
+                        ${dayExpenses.map(e => createExpenseItem(e)).join('')}
+                    </ul>
+                </div>
+            `;
         });
 
         container.innerHTML = html;
@@ -2769,12 +2767,12 @@
 
         if (friends.length === 0) {
             container.innerHTML = `
-                    <div class="empty-state" style="grid-column: 1/-1;">
-                        <span class="material-icons">groups</span>
-                        <h3>No friends added yet</h3>
-                        <p>Add friends to split expenses with them</p>
-                    </div>
-                `;
+                <div class="empty-state" style="grid-column: 1/-1;">
+                    <span class="material-icons">groups</span>
+                    <h3>No friends added yet</h3>
+                    <p>Add friends to split expenses with them</p>
+                </div>
+            `;
             updateSettleSummary(0, 0);
             return;
         }
@@ -2805,20 +2803,20 @@
             const balanceLabel = balance > 0 ? 'owes you' : balance < 0 ? 'you owe' : 'settled up';
 
             html += `
-                    <div class="friend-card" onclick="openFriendDetail('${friend.id}')">
-                        <div class="friend-header">
-                            <div class="friend-avatar">${friend.name.charAt(0).toUpperCase()}</div>
-                            <div class="friend-info">
-                                <h3>${friend.name}</h3>
-                                <p>${friend.phone || 'No phone'}</p>
-                            </div>
-                        </div>
-                        <div class="friend-balance">
-                            <div class="amount ${balanceClass}">${balance >= 0 ? '' : '-'}${formatCurrency(balance)}</div>
-                            <div class="label">${balanceLabel}</div>
+                <div class="friend-card" data-friend-id="${friend.id}">
+                    <div class="friend-header">
+                        <div class="friend-avatar">${friend.name.charAt(0).toUpperCase()}</div>
+                        <div class="friend-info">
+                            <h3>${friend.name}</h3>
+                            <p>${friend.phone || 'No phone'}</p>
                         </div>
                     </div>
-                `;
+                    <div class="friend-balance">
+                        <div class="amount ${balanceClass}">${balance >= 0 ? '' : '-'}${formatCurrency(balance)}</div>
+                        <div class="label">${balanceLabel}</div>
+                    </div>
+                </div>
+            `;
         });
 
         container.innerHTML = html;
@@ -2831,21 +2829,21 @@
 
         if (net > 0) {
             summary.innerHTML = `
-                    <h3>You'll get back ${formatCurrency(net)}</h3>
-                    <p>Overall, friends owe you money</p>
-                `;
+                <h3>You'll get back ${formatCurrency(net)}</h3>
+                <p>Overall, friends owe you money</p>
+            `;
             summary.style.background = 'linear-gradient(135deg, #48bb78, #38a169)';
         } else if (net < 0) {
             summary.innerHTML = `
-                    <h3>You owe ${formatCurrency(net)}</h3>
-                    <p>Overall, you owe money to friends</p>
-                `;
+                <h3>You owe ${formatCurrency(net)}</h3>
+                <p>Overall, you owe money to friends</p>
+            `;
             summary.style.background = 'linear-gradient(135deg, #f56565, #e53e3e)';
         } else {
             summary.innerHTML = `
-                    <h3>All settled up!</h3>
-                    <p>No pending balances with friends</p>
-                `;
+                <h3>All settled up!</h3>
+                                <p>No pending balances with friends</p>
+            `;
             summary.style.background = 'linear-gradient(135deg, #667eea, #5a67d8)';
         }
     }
@@ -2889,9 +2887,9 @@
         if (!friend) return;
 
         document.getElementById('friendDetailName').innerHTML = `
-                <span class="material-icons">person</span>
-                ${friend.name}
-            `;
+            <span class="material-icons">person</span>
+            ${friend.name}
+        `;
         document.getElementById('friendGiveName').textContent = friend.name;
         document.getElementById('friendReceiveName').textContent = friend.name;
 
@@ -2931,9 +2929,9 @@
         const label = balance > 0 ? 'owes you' : balance < 0 ? 'you owe' : 'settled up';
 
         balanceEl.innerHTML = `
-                <div class="amount ${balanceClass}">${balance >= 0 ? '' : '-'}${formatCurrency(balance)}</div>
-                <div class="label">${label}</div>
-            `;
+            <div class="amount ${balanceClass}">${balance >= 0 ? '' : '-'}${formatCurrency(balance)}</div>
+            <div class="label">${label}</div>
+        `;
 
         // Update history
         await loadFriendHistory(friendId);
@@ -2959,17 +2957,17 @@
 
         section.style.display = 'block';
         list.innerHTML = pendingSplits.map(split => `
-                <div class="pending-split-item">
-                    <div class="pending-split-info">
-                        <div class="pending-split-desc">${split.description}</div>
-                        <div class="pending-split-date">${formatDate(split.date)}</div>
-                    </div>
-                    <span class="pending-split-amount">${formatCurrency(split.amount)}</span>
-                    <button class="btn btn-sm btn-success" onclick="settleSplitDirectly('${split.id}')">
-                        Settle
-                    </button>
+            <div class="pending-split-item">
+                <div class="pending-split-info">
+                    <div class="pending-split-desc">${split.description}</div>
+                    <div class="pending-split-date">${formatDate(split.date)}</div>
                 </div>
-            `).join('');
+                <span class="pending-split-amount">${formatCurrency(split.amount)}</span>
+                <button class="btn btn-sm btn-success" data-settle-split="${split.id}">
+                    Settle
+                </button>
+            </div>
+        `).join('');
     }
 
     async function settleSplitDirectly(splitId) {
@@ -3003,7 +3001,6 @@
                 const allSettled = expenseSplits.every(s => s.settled);
 
                 if (allSettled) {
-                    // Ask if user wants to update original transaction
                     const totalSplitAmount = expenseSplits.reduce((sum, s) => sum + s.amount, 0);
                     const newAmount = expense.amount - totalSplitAmount;
 
@@ -3023,11 +3020,11 @@
 
     function showUpdateTransactionDialog(expense, newAmount) {
         document.getElementById('updateTransactionMessage').innerHTML = `
-                All splits for "<strong>${expense.description}</strong>" are now settled.<br><br>
-                Original amount: <strong>${formatCurrency(expense.amount)}</strong><br>
-                Your share: <strong>${formatCurrency(newAmount)}</strong><br><br>
-                Would you like to update the transaction to reflect your actual expense?
-            `;
+            All splits for "<strong>${expense.description}</strong>" are now settled.<br><br>
+            Original amount: <strong>${formatCurrency(expense.amount)}</strong><br>
+            Your share: <strong>${formatCurrency(newAmount)}</strong><br><br>
+            Would you like to update the transaction to reflect your actual expense?
+        `;
 
         updateTransactionCallback = async (shouldUpdate) => {
             if (shouldUpdate) {
@@ -3064,27 +3061,27 @@
         }
 
         container.innerHTML = transactions.map(tx => `
-                <div class="history-item">
-                    <div class="history-item-info">
-                        <div class="history-item-title">${tx.description || (tx.type === 'give' ? 'You gave' : 'You received')}</div>
-                        <div class="history-item-date">
-                            ${formatDate(tx.date || tx.createdAt.split('T')[0])}
-                            ${tx.isSplit ? '<span class="badge badge-warning" style="margin-left:5px;">Split</span>' : ''}
-                            ${tx.settled ? '<span class="badge badge-success" style="margin-left:5px;">Settled</span>' : ''}
-                        </div>
-                    </div>
-                    <div class="history-item-amount">
-                        <span class="badge ${tx.type === 'give' ? 'badge-danger' : 'badge-success'}">
-                            ${tx.type === 'give' ? '-' : '+'}${formatCurrency(tx.amount)}
-                        </span>
-                    </div>
-                    <div class="history-item-actions">
-                        <button class="icon-btn delete" onclick="deleteFriendTransaction('${tx.id}')" title="Delete">
-                            <span class="material-icons" style="font-size:18px;">delete</span>
-                        </button>
+            <div class="history-item">
+                <div class="history-item-info">
+                    <div class="history-item-title">${tx.description || (tx.type === 'give' ? 'You gave' : 'You received')}</div>
+                    <div class="history-item-date">
+                        ${formatDate(tx.date || tx.createdAt.split('T')[0])}
+                        ${tx.isSplit ? '<span class="badge badge-warning" style="margin-left:5px;">Split</span>' : ''}
+                        ${tx.settled ? '<span class="badge badge-success" style="margin-left:5px;">Settled</span>' : ''}
                     </div>
                 </div>
-            `).join('');
+                <div class="history-item-amount">
+                    <span class="badge ${tx.type === 'give' ? 'badge-danger' : 'badge-success'}">
+                        ${tx.type === 'give' ? '-' : '+'}${formatCurrency(tx.amount)}
+                    </span>
+                </div>
+                <div class="history-item-actions">
+                    <button class="icon-btn delete" data-delete-friend-tx="${tx.id}" title="Delete">
+                        <span class="material-icons" style="font-size:18px;">delete</span>
+                    </button>
+                </div>
+            </div>
+        `).join('');
     }
 
     async function deleteFriendTransaction(txId) {
@@ -3132,14 +3129,13 @@
             const matchingSplit = pendingSplitsForFriend.find(s => Math.abs(s.amount - amount) < 0.01);
 
             if (matchingSplit) {
-                // Show dialog to ask if this settles the split
                 document.getElementById('matchingSplitItem').innerHTML = `
-                        <div class="pending-split-info">
-                            <div class="pending-split-desc">${matchingSplit.description}</div>
-                            <div class="pending-split-date">${formatDate(matchingSplit.date)}</div>
-                        </div>
-                        <span class="pending-split-amount">${formatCurrency(matchingSplit.amount)}</span>
-                    `;
+                    <div class="pending-split-info">
+                        <div class="pending-split-desc">${matchingSplit.description}</div>
+                        <div class="pending-split-date">${formatDate(matchingSplit.date)}</div>
+                    </div>
+                    <span class="pending-split-amount">${formatCurrency(matchingSplit.amount)}</span>
+                `;
 
                 settleSplitCallback = async (shouldSettle) => {
                     if (shouldSettle) {
@@ -3192,7 +3188,6 @@
         const friendTx = await dbGetAll(STORES.friendTransactions);
         const transactions = friendTx.filter(tx => tx.friendId === currentFriendId);
 
-        // Calculate current balance
         let balance = 0;
         transactions.forEach(tx => {
             if (tx.type === 'give') {
@@ -3203,7 +3198,6 @@
         });
 
         if (balance !== 0) {
-            // Add a transaction to zero out
             await dbAdd(STORES.friendTransactions, {
                 id: generateId(),
                 friendId: currentFriendId,
@@ -3215,7 +3209,6 @@
                 createdAt: new Date().toISOString()
             });
 
-            // Mark all pending splits as settled
             for (const tx of transactions) {
                 if (tx.isSplit && !tx.settled) {
                     tx.settled = true;
@@ -3248,14 +3241,12 @@
     async function deleteFriend() {
         if (!confirm('Delete this friend and all their transactions?')) return;
 
-        // Delete all friend transactions
         const friendTx = await dbGetAll(STORES.friendTransactions);
         const transactions = friendTx.filter(tx => tx.friendId === currentFriendId);
         for (const tx of transactions) {
             await dbDelete(STORES.friendTransactions, tx.id);
         }
 
-        // Delete friend
         await dbDelete(STORES.friends, currentFriendId);
 
         showToast('Friend deleted!');
@@ -3263,82 +3254,6 @@
         loadFriends();
         updatePendingAmount();
     }
-
-    // ==================== FILTER HANDLING ====================
-    // Dashboard filters
-    document.getElementById('dashboardFilterTabs').addEventListener('click', (e) => {
-        const tab = e.target.closest('.filter-tab');
-        if (!tab) return;
-
-        const filter = tab.dataset.filter;
-
-        // Update active state
-        document.querySelectorAll('#dashboardFilterTabs .filter-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-
-        currentFilter = filter;
-
-        // Show/hide date range picker
-        const datePicker = document.getElementById('dateRangePicker');
-        datePicker.classList.toggle('show', filter === 'custom');
-
-        if (filter !== 'custom') {
-            loadDashboard();
-        }
-    });
-
-    // Transactions filters
-    document.getElementById('transactionsFilterTabs').addEventListener('click', (e) => {
-        const tab = e.target.closest('.filter-tab');
-        if (!tab) return;
-
-        const filter = tab.dataset.filter;
-
-        // Update active state
-        document.querySelectorAll('#transactionsFilterTabs .filter-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-
-        currentTransactionsFilter = filter;
-        loadTransactions();
-    });
-
-    function applyDateRange() {
-        const startDate = document.getElementById('startDate').value;
-        const endDate = document.getElementById('endDate').value;
-
-        if (!startDate || !endDate) {
-            showToast('Please select both dates');
-            return;
-        }
-
-        if (new Date(startDate) > new Date(endDate)) {
-            showToast('Start date must be before end date');
-            return;
-        }
-
-        currentFilter = 'custom';
-        loadDashboard();
-    }
-
-    // ==================== CONFIRM DIALOG ====================
-    function showConfirmDialog(title, message, callback) {
-        document.getElementById('confirmTitle').textContent = title;
-        document.getElementById('confirmMessage').textContent = message;
-        confirmCallback = callback;
-        document.getElementById('confirmDialog').classList.add('show');
-    }
-
-    function closeConfirmDialog() {
-        document.getElementById('confirmDialog').classList.remove('show');
-        confirmCallback = null;
-    }
-
-    document.getElementById('confirmYesBtn').addEventListener('click', () => {
-        if (confirmCallback) {
-            confirmCallback();
-        }
-        closeConfirmDialog();
-    });
 
     // ==================== SETTINGS ====================
     function loadSettings() {
@@ -3437,11 +3352,375 @@
         loadSettings();
     }
 
+    function applyDateRange() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+
+        if (!startDate || !endDate) {
+            showToast('Please select both dates');
+            return;
+        }
+
+        if (new Date(startDate) > new Date(endDate)) {
+            showToast('Start date must be before end date');
+            return;
+        }
+
+        currentFilter = 'custom';
+        loadDashboard();
+    }
+
+    // ==================== EVENT LISTENERS ====================
+    function setupEventListeners() {
+        // Bottom Navigation
+        document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const pageId = this.dataset.page;
+                if (pageId) {
+                    showPage(pageId);
+                }
+            });
+        });
+
+        // Add Expense Button
+        document.getElementById('addExpenseBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            openModal('addExpenseModal');
+        });
+
+        // Settings Button
+        document.getElementById('settingsBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            openModal('settingsModal');
+        });
+
+        // View All Transactions Button
+        document.getElementById('viewAllTransactionsBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            showPage('transactionsPage');
+        });
+
+        // Add Friend Button
+        document.getElementById('addFriendBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            openAddFriendModal();
+        });
+
+        // Apply Date Range Button
+        document.getElementById('applyDateRangeBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            applyDateRange();
+        });
+
+        // Modal Close Buttons
+        document.getElementById('closeExpenseModal').addEventListener('click', () => closeModal('addExpenseModal'));
+        document.getElementById('cancelExpenseBtn').addEventListener('click', () => closeModal('addExpenseModal'));
+        document.getElementById('closeFriendModal').addEventListener('click', () => closeModal('addFriendModal'));
+        document.getElementById('cancelFriendBtn').addEventListener('click', () => closeModal('addFriendModal'));
+        document.getElementById('closeFriendDetailModal').addEventListener('click', () => closeModal('friendDetailModal'));
+        document.getElementById('closeSettingsModal').addEventListener('click', () => closeModal('settingsModal'));
+
+        // Save Buttons
+        document.getElementById('saveExpenseBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            saveExpense();
+        });
+
+        document.getElementById('saveFriendBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            saveFriend();
+        });
+
+        document.getElementById('saveSettingsBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            saveSettings();
+        });
+
+        // Transaction Type Tabs
+        document.getElementById('transactionTypeTabs').addEventListener('click', function(e) {
+            const tab = e.target.closest('.tab');
+            if (tab && tab.dataset.type) {
+                switchTransactionType(tab.dataset.type);
+            }
+        });
+
+        // Category Grid - Expense
+        document.getElementById('categoryGrid').addEventListener('click', function(e) {
+            const option = e.target.closest('.category-option');
+            if (option) {
+                document.querySelectorAll('#categoryGrid .category-option').forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+            }
+        });
+
+        // Category Grid - Income
+        document.getElementById('incomeCategoryGrid').addEventListener('click', function(e) {
+            const option = e.target.closest('.category-option');
+            if (option) {
+                document.querySelectorAll('#incomeCategoryGrid .category-option').forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+            }
+        });
+
+        // Split Toggle
+        document.getElementById('splitToggle').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleSplit();
+        });
+
+        // Add Split Item Button
+        document.getElementById('addSplitItemBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            addSplitItem();
+        });
+
+        // Split Items - Remove Button (Event Delegation)
+        document.getElementById('splitItems').addEventListener('click', function(e) {
+            const btn = e.target.closest('.icon-btn[data-split-id]');
+            if (btn) {
+                e.preventDefault();
+                e.stopPropagation();
+                removeSplitItem(btn.dataset.splitId);
+            }
+        });
+
+        // Dashboard Filter Tabs
+        document.getElementById('dashboardFilterTabs').addEventListener('click', function(e) {
+            const tab = e.target.closest('.filter-tab');
+            if (!tab) return;
+
+            const filter = tab.dataset.filter;
+
+            document.querySelectorAll('#dashboardFilterTabs .filter-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            currentFilter = filter;
+
+            const datePicker = document.getElementById('dateRangePicker');
+            datePicker.classList.toggle('show', filter === 'custom');
+
+            if (filter !== 'custom') {
+                loadDashboard();
+            }
+        });
+
+        // Transactions Filter Tabs
+        document.getElementById('transactionsFilterTabs').addEventListener('click', function(e) {
+            const tab = e.target.closest('.filter-tab');
+            if (!tab) return;
+
+            const filter = tab.dataset.filter;
+
+            document.querySelectorAll('#transactionsFilterTabs .filter-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            currentTransactionsFilter = filter;
+            loadTransactions();
+        });
+
+        // Search Transactions
+        document.getElementById('searchTransactions').addEventListener('input', filterTransactions);
+
+        // Recent Transactions - Click to Edit, Delete Button
+        document.getElementById('recentTransactions').addEventListener('click', function(e) {
+            const deleteBtn = e.target.closest('[data-delete-expense]');
+            if (deleteBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                deleteExpense(deleteBtn.dataset.deleteExpense);
+                return;
+            }
+
+            const expenseItem = e.target.closest('.expense-item[data-expense-id]');
+            if (expenseItem) {
+                e.preventDefault();
+                e.stopPropagation();
+                editExpense(expenseItem.dataset.expenseId);
+            }
+        });
+
+        // Transactions List - Click to Edit, Delete Button
+        document.getElementById('transactionsList').addEventListener('click', function(e) {
+            const deleteBtn = e.target.closest('[data-delete-expense]');
+            if (deleteBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                deleteExpense(deleteBtn.dataset.deleteExpense);
+                return;
+            }
+
+            const expenseItem = e.target.closest('.expense-item[data-expense-id]');
+            if (expenseItem) {
+                e.preventDefault();
+                e.stopPropagation();
+                editExpense(expenseItem.dataset.expenseId);
+            }
+        });
+
+        // Friends List - Click to Open Detail
+        document.getElementById('friendsList').addEventListener('click', function(e) {
+            const friendCard = e.target.closest('.friend-card[data-friend-id]');
+            if (friendCard) {
+                e.preventDefault();
+                e.stopPropagation();
+                openFriendDetail(friendCard.dataset.friendId);
+            }
+        });
+
+        // Friend Action Tabs
+        document.getElementById('friendActionTabs').addEventListener('click', function(e) {
+            const tab = e.target.closest('.tab');
+            if (tab && tab.dataset.action) {
+                showFriendAction(tab.dataset.action);
+            }
+        });
+
+        // Record Give Button
+        document.getElementById('recordGiveBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            recordFriendTransaction('give');
+        });
+
+        // Record Receive Button
+        document.getElementById('recordReceiveBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            recordFriendTransaction('receive');
+        });
+
+        // Edit Friend Button
+        document.getElementById('editFriendBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            editCurrentFriend();
+        });
+
+        // Delete Friend Button
+        document.getElementById('deleteFriendBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            deleteFriend();
+        });
+
+        // Settle Up Button
+        document.getElementById('settleUpBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            settleUp();
+        });
+
+        // Pending Splits List - Settle Button
+        document.getElementById('pendingSplitsList').addEventListener('click', function(e) {
+            const settleBtn = e.target.closest('[data-settle-split]');
+            if (settleBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                settleSplitDirectly(settleBtn.dataset.settleSplit);
+            }
+        });
+
+        // Friend Transaction History - Delete Button
+        document.getElementById('friendTransactionHistory').addEventListener('click', function(e) {
+            const deleteBtn = e.target.closest('[data-delete-friend-tx]');
+            if (deleteBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                deleteFriendTransaction(deleteBtn.dataset.deleteFriendTx);
+            }
+        });
+
+        // Settings Data Management Buttons
+        document.getElementById('exportDataBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            exportData();
+        });
+
+        document.getElementById('importDataBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('importFile').click();
+        });
+
+        document.getElementById('importFile').addEventListener('change', importData);
+
+        document.getElementById('clearAllDataBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            clearAllData();
+        });
+
+        // Confirm Dialog Buttons
+        document.getElementById('confirmCancelBtn').addEventListener('click', function() {
+            document.getElementById('confirmDialog').classList.remove('show');
+            confirmCallback = null;
+        });
+
+        document.getElementById('confirmYesBtn').addEventListener('click', function() {
+            if (confirmCallback) {
+                confirmCallback();
+            }
+            document.getElementById('confirmDialog').classList.remove('show');
+            confirmCallback = null;
+        });
+
+        // Settle Split Dialog Buttons
+        document.getElementById('settleSplitNewBtn').addEventListener('click', function() {
+            closeSettleSplitDialog(false);
+        });
+
+        document.getElementById('settleSplitYesBtn').addEventListener('click', function() {
+            closeSettleSplitDialog(true);
+        });
+
+        // Update Transaction Dialog Buttons
+        document.getElementById('updateTransactionNoBtn').addEventListener('click', function() {
+            closeUpdateTransactionDialog(false);
+        });
+
+        document.getElementById('updateTransactionYesBtn').addEventListener('click', function() {
+            closeUpdateTransactionDialog(true);
+        });
+
+        // Modal Overlay Click to Close
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) {
+                    overlay.classList.remove('show');
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+
+        // Prevent form submission
+        document.getElementById('expenseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+        });
+
+        document.getElementById('friendForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+        });
+    }
+
     // ==================== INITIALIZATION ====================
     async function init() {
         try {
             await initDB();
             loadSettings();
+            setupEventListeners();
             loadDashboard();
 
             // Set default dates for date range picker
@@ -3458,10 +3737,14 @@
     }
 
     // Initialize on load
-    document.addEventListener('DOMContentLoaded', init);
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
 
     // Handle back button for modals
-    window.addEventListener('popstate', () => {
+    window.addEventListener('popstate', function() {
         document.querySelectorAll('.modal-overlay.show').forEach(modal => {
             modal.classList.remove('show');
         });
@@ -3470,14 +3753,6 @@
         });
         document.body.style.overflow = '';
     });
-
-    // Prevent double-tap zoom on buttons
-    document.addEventListener('touchend', (e) => {
-        const target = e.target.closest('button, .nav-item, .filter-tab, .category-option, .friend-card, .expense-item, .toggle');
-        if (target) {
-            e.preventDefault();
-        }
-    }, { passive: false });
 </script>
 </body>
 </html>
