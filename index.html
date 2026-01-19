@@ -59,6 +59,75 @@
             user-select: none;
         }
 
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--gray-200);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            margin-top: 15px;
+            color: var(--gray-600);
+            font-weight: 500;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Mini loader for actions */
+        .action-loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--white);
+            padding: 20px 30px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            z-index: 9998;
+            display: none;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .action-loading.show {
+            display: flex;
+        }
+
+        .action-loading .mini-spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--gray-200);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
         /* Header */
         .header {
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
@@ -149,7 +218,7 @@
             gap: 8px;
         }
 
-        /* Summary Cards */
+        /* Summary Cards - Now Clickable */
         .summary-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -165,6 +234,17 @@
             text-align: center;
             position: relative;
             overflow: hidden;
+            cursor: pointer;
+            transition: var(--transition);
+            touch-action: manipulation;
+        }
+
+        .summary-card:active {
+            transform: scale(0.98);
+        }
+
+        .summary-card:hover {
+            box-shadow: var(--shadow-lg);
         }
 
         .summary-card::before {
@@ -205,6 +285,12 @@
         .summary-label {
             font-size: 0.85rem;
             color: var(--gray-500);
+        }
+
+        .summary-card .tap-hint {
+            font-size: 0.7rem;
+            color: var(--gray-400);
+            margin-top: 5px;
         }
 
         /* Filter Section */
@@ -284,7 +370,7 @@
             padding: 12px 15px;
             border: 2px solid var(--gray-200);
             border-radius: var(--radius-sm);
-            font-size: 16px; /* Prevents zoom on iOS */
+            font-size: 16px;
             font-family: inherit;
             transition: var(--transition);
             background: var(--white);
@@ -506,6 +592,7 @@
             transition: var(--transition);
             cursor: pointer;
             touch-action: manipulation;
+            position: relative;
         }
 
         .friend-card:active {
@@ -533,14 +620,38 @@
             flex-shrink: 0;
         }
 
+        .friend-info {
+            flex: 1;
+        }
+
         .friend-info h3 {
             font-size: 1.1rem;
             margin-bottom: 3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .friend-info p {
             font-size: 0.85rem;
             color: var(--gray-500);
+        }
+
+        /* Pending split indicator for friend card */
+        .friend-split-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            background: rgba(237, 137, 54, 0.15);
+            color: var(--warning);
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .friend-split-indicator .material-icons {
+            font-size: 12px;
         }
 
         .friend-balance {
@@ -579,7 +690,7 @@
             flex: 1;
         }
 
-        /* Bottom Navigation - FIXED */
+        /* Bottom Navigation */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -854,7 +965,7 @@
             flex-shrink: 0;
         }
 
-        /* Transaction History */
+        /* Transaction History - Improved Layout */
         .transaction-history {
             max-height: 300px;
             overflow-y: auto;
@@ -863,10 +974,10 @@
 
         .history-item {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             padding: 12px;
             border-bottom: 1px solid var(--gray-200);
+            gap: 10px;
         }
 
         .history-item:last-child {
@@ -875,11 +986,20 @@
 
         .history-item-info {
             flex: 1;
+            min-width: 0;
         }
 
         .history-item-title {
             font-weight: 500;
-            margin-bottom: 3px;
+            margin-bottom: 5px;
+            word-break: break-word;
+        }
+
+        .history-item-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
         }
 
         .history-item-date {
@@ -888,11 +1008,23 @@
         }
 
         .history-item-amount {
-            text-align: right;
+            flex-shrink: 0;
         }
 
         .history-item-actions {
-            margin-left: 10px;
+            flex-shrink: 0;
+        }
+
+        /* Fixed delete button visibility */
+        .history-item-actions .icon-btn {
+            background: rgba(245, 101, 101, 0.1);
+            color: var(--danger);
+            width: 32px;
+            height: 32px;
+        }
+
+        .history-item-actions .icon-btn:hover {
+            background: rgba(245, 101, 101, 0.2);
         }
 
         /* Toggle Switch */
@@ -967,10 +1099,16 @@
         /* Page sections */
         .page {
             display: none;
+            animation: fadeIn 0.3s ease;
         }
 
         .page.active {
             display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* Date Group */
@@ -1017,6 +1155,9 @@
             border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
         }
 
         .badge-success {
@@ -1037,6 +1178,10 @@
         .badge-info {
             background: rgba(66, 153, 225, 0.1);
             color: var(--info);
+        }
+
+        .badge .material-icons {
+            font-size: 12px;
         }
 
         /* Toast Notification */
@@ -1060,23 +1205,10 @@
             opacity: 1;
         }
 
-        /* Loading Spinner */
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--gray-200);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
         /* Search Bar */
         .search-bar {
             position: relative;
+            margin-bottom: 20px;
         }
 
         .search-bar input {
@@ -1200,6 +1332,12 @@
             max-width: 400px;
             width: 100%;
             text-align: center;
+            animation: scaleIn 0.2s ease;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
 
         .confirm-content h3 {
@@ -1232,9 +1370,116 @@
         .modal-header {
             position: relative;
         }
+
+        /* Transaction Detail Modal */
+        .transaction-detail {
+            padding: 20px;
+        }
+
+        .transaction-detail-header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--gray-200);
+            margin-bottom: 20px;
+        }
+
+        .transaction-detail-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 2rem;
+        }
+
+        .transaction-detail-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .transaction-detail-amount.income { color: var(--secondary); }
+        .transaction-detail-amount.expense { color: var(--danger); }
+
+        .transaction-detail-desc {
+            font-size: 1.1rem;
+            color: var(--gray-700);
+        }
+
+        .transaction-detail-info {
+            margin-bottom: 20px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: var(--gray-500);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .detail-label .material-icons {
+            font-size: 18px;
+        }
+
+        .detail-value {
+            font-weight: 500;
+            text-align: right;
+        }
+
+        .transaction-detail-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .transaction-detail-actions .btn {
+            flex: 1;
+        }
+
+        /* Summary Modal Styles */
+        .summary-detail-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .summary-detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .summary-detail-item:last-child {
+            border-bottom: none;
+        }
     </style>
 </head>
 <body>
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Loading...</div>
+</div>
+
+<!-- Action Loading -->
+<div class="action-loading" id="actionLoading">
+    <div class="mini-spinner"></div>
+    <span>Please wait...</span>
+</div>
+
 <!-- Header -->
 <header class="header">
     <div class="header-content">
@@ -1256,33 +1501,37 @@
     <section id="dashboardPage" class="page active">
         <!-- Summary Cards -->
         <div class="summary-grid">
-            <div class="summary-card income">
+            <div class="summary-card income" id="incomeCard" data-type="income">
                 <div class="summary-icon">
                     <span class="material-icons">trending_up</span>
                 </div>
                 <div class="summary-value" id="totalIncome">₹0</div>
                 <div class="summary-label">Income</div>
+                <div class="tap-hint">Tap to view</div>
             </div>
-            <div class="summary-card expense">
+            <div class="summary-card expense" id="expenseCard" data-type="expense">
                 <div class="summary-icon">
                     <span class="material-icons">trending_down</span>
                 </div>
                 <div class="summary-value" id="totalExpense">₹0</div>
                 <div class="summary-label">Expenses</div>
+                <div class="tap-hint">Tap to view</div>
             </div>
-            <div class="summary-card balance">
+            <div class="summary-card balance" id="balanceCard" data-type="balance">
                 <div class="summary-icon">
                     <span class="material-icons">account_balance</span>
                 </div>
                 <div class="summary-value" id="totalBalance">₹0</div>
                 <div class="summary-label">Balance</div>
+                <div class="tap-hint">Tap to view</div>
             </div>
-            <div class="summary-card pending">
+            <div class="summary-card pending" id="pendingCard" data-type="pending">
                 <div class="summary-icon">
                     <span class="material-icons">pending</span>
                 </div>
                 <div class="summary-value" id="pendingAmount">₹0</div>
                 <div class="summary-label">Pending</div>
+                <div class="tap-hint">Tap to view</div>
             </div>
         </div>
 
@@ -1343,7 +1592,7 @@
     <!-- Transactions Page -->
     <section id="transactionsPage" class="page">
         <!-- Search -->
-        <div class="search-bar" style="margin-bottom: 20px;">
+        <div class="search-bar">
             <span class="material-icons">search</span>
             <input type="text" id="searchTransactions" placeholder="Search transactions...">
         </div>
@@ -1415,6 +1664,12 @@
             <p>You'll see your overall balance with friends here</p>
         </div>
 
+        <!-- Search Friends -->
+        <div class="search-bar">
+            <span class="material-icons">search</span>
+            <input type="text" id="searchFriends" placeholder="Search friends...">
+        </div>
+
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">
@@ -1457,11 +1712,52 @@
     </button>
 </nav>
 
+<!-- Transaction Detail Modal (NEW) -->
+<div class="modal-overlay" id="transactionDetailModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>
+                <span class="material-icons">receipt</span>
+                Transaction Details
+            </h2>
+            <button class="modal-close" id="closeTransactionDetailModal">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+        <div class="modal-body transaction-detail" id="transactionDetailContent">
+            <!-- Content will be loaded dynamically -->
+        </div>
+    </div>
+</div>
+
+<!-- Summary Detail Modal (NEW) -->
+<div class="modal-overlay" id="summaryDetailModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="summaryDetailTitle">
+                <span class="material-icons">info</span>
+                Details
+            </h2>
+            <button class="modal-close" id="closeSummaryDetailModal">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="summary-detail-list" id="summaryDetailList">
+                <!-- Content will be loaded dynamically -->
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary btn-block" id="summaryDetailCloseBtn">Close</button>
+        </div>
+    </div>
+</div>
+
 <!-- Add Expense Modal -->
 <div class="modal-overlay" id="addExpenseModal">
     <div class="modal">
         <div class="modal-header">
-            <h2>
+            <h2 id="expenseModalTitle">
                 <span class="material-icons">add_circle</span>
                 Add Transaction
             </h2>
@@ -1844,6 +2140,7 @@
     let currentFilter = 'today';
     let currentTransactionsFilter = 'today';
     let currentFriendId = null;
+    let currentViewingExpenseId = null;
     let expenseChart = null;
     let monthlyChart = null;
     let categoryChart = null;
@@ -1851,31 +2148,49 @@
     let settleSplitCallback = null;
     let updateTransactionCallback = null;
     let pendingSplitsForFriend = [];
+    let allFriendsData = [];
 
     // Category icons and colors
     const expenseCategories = {
-        food: { icon: 'restaurant', color: '#ed8936', class: 'cat-food' },
-        transport: { icon: 'directions_car', color: '#4299e1', class: 'cat-transport' },
-        shopping: { icon: 'shopping_bag', color: '#9f7aea', class: 'cat-shopping' },
-        entertainment: { icon: 'movie', color: '#ed64a6', class: 'cat-entertainment' },
-        bills: { icon: 'receipt', color: '#f56565', class: 'cat-bills' },
-        health: { icon: 'favorite', color: '#48bb78', class: 'cat-health' },
-        education: { icon: 'school', color: '#38b2ac', class: 'cat-education' },
-        other: { icon: 'more_horiz', color: '#718096', class: 'cat-other' }
+        food: { icon: 'restaurant', color: '#ed8936', class: 'cat-food', label: 'Food' },
+        transport: { icon: 'directions_car', color: '#4299e1', class: 'cat-transport', label: 'Transport' },
+        shopping: { icon: 'shopping_bag', color: '#9f7aea', class: 'cat-shopping', label: 'Shopping' },
+        entertainment: { icon: 'movie', color: '#ed64a6', class: 'cat-entertainment', label: 'Entertainment' },
+        bills: { icon: 'receipt', color: '#f56565', class: 'cat-bills', label: 'Bills' },
+        health: { icon: 'favorite', color: '#48bb78', class: 'cat-health', label: 'Health' },
+        education: { icon: 'school', color: '#38b2ac', class: 'cat-education', label: 'Education' },
+        other: { icon: 'more_horiz', color: '#718096', class: 'cat-other', label: 'Other' }
     };
 
     const incomeCategories = {
-        salary: { icon: 'work', color: '#48bb78', class: 'cat-salary' },
-        freelance: { icon: 'laptop', color: '#667eea', class: 'cat-freelance' },
-        investment: { icon: 'trending_up', color: '#ed8936', class: 'cat-investment' },
-        gift: { icon: 'card_giftcard', color: '#ed64a6', class: 'cat-gift' },
-        family: { icon: 'family_restroom', color: '#f56565', class: 'cat-family' },
-        refund: { icon: 'replay', color: '#38b2ac', class: 'cat-refund' },
-        business: { icon: 'business', color: '#9f7aea', class: 'cat-business' },
-        'income-other': { icon: 'more_horiz', color: '#718096', class: 'cat-income-other' }
+        salary: { icon: 'work', color: '#48bb78', class: 'cat-salary', label: 'Salary' },
+        freelance: { icon: 'laptop', color: '#667eea', class: 'cat-freelance', label: 'Freelance' },
+        investment: { icon: 'trending_up', color: '#ed8936', class: 'cat-investment', label: 'Investment' },
+        gift: { icon: 'card_giftcard', color: '#ed64a6', class: 'cat-gift', label: 'Gift' },
+        family: { icon: 'family_restroom', color: '#f56565', class: 'cat-family', label: 'Family' },
+        refund: { icon: 'replay', color: '#38b2ac', class: 'cat-refund', label: 'Refund' },
+        business: { icon: 'business', color: '#9f7aea', class: 'cat-business', label: 'Business' },
+        'income-other': { icon: 'more_horiz', color: '#718096', class: 'cat-income-other', label: 'Other' }
     };
 
     const allCategories = { ...expenseCategories, ...incomeCategories };
+
+    // ==================== LOADING FUNCTIONS ====================
+    function showLoading() {
+        document.getElementById('loadingOverlay').classList.remove('hidden');
+    }
+
+    function hideLoading() {
+        document.getElementById('loadingOverlay').classList.add('hidden');
+    }
+
+    function showActionLoading() {
+        document.getElementById('actionLoading').classList.add('show');
+    }
+
+    function hideActionLoading() {
+        document.getElementById('actionLoading').classList.remove('show');
+    }
 
     // Initialize IndexedDB
     async function initDB() {
@@ -1891,7 +2206,6 @@
             request.onupgradeneeded = (event) => {
                 const database = event.target.result;
 
-                // Expenses store
                 if (!database.objectStoreNames.contains(STORES.expenses)) {
                     const expenseStore = database.createObjectStore(STORES.expenses, { keyPath: 'id' });
                     expenseStore.createIndex('date', 'date', { unique: false });
@@ -1899,18 +2213,15 @@
                     expenseStore.createIndex('type', 'type', { unique: false });
                 }
 
-                // Friends store
                 if (!database.objectStoreNames.contains(STORES.friends)) {
                     database.createObjectStore(STORES.friends, { keyPath: 'id' });
                 }
 
-                // Friend transactions store
                 if (!database.objectStoreNames.contains(STORES.friendTransactions)) {
                     const friendTxStore = database.createObjectStore(STORES.friendTransactions, { keyPath: 'id' });
                     friendTxStore.createIndex('friendId', 'friendId', { unique: false });
                 }
 
-                // Settings store
                 if (!database.objectStoreNames.contains(STORES.settings)) {
                     database.createObjectStore(STORES.settings, { keyPath: 'key' });
                 }
@@ -2009,6 +2320,16 @@
         }
     }
 
+    function formatFullDate(dateStr) {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-IN', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+    }
+
     function formatTime(timeStr) {
         if (!timeStr) return '';
         const [hours, minutes] = timeStr.split(':');
@@ -2079,16 +2400,13 @@
 
     // ==================== PAGE NAVIGATION ====================
     function showPage(pageId) {
-        // Hide all pages
         document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
 
-        // Show selected page
         const page = document.getElementById(pageId);
         if (page) {
             page.classList.add('active');
         }
 
-        // Update nav items
         document.querySelectorAll('.nav-item').forEach(item => {
             item.classList.remove('active');
             if (item.dataset.page === pageId) {
@@ -2097,20 +2415,22 @@
         });
 
         // Load page data
-        switch(pageId) {
-            case 'dashboardPage':
-                loadDashboard();
-                break;
-            case 'transactionsPage':
-                loadTransactions();
-                break;
-            case 'statsPage':
-                loadStats();
-                break;
-            case 'friendsPage':
-                loadFriends();
-                break;
-        }
+        setTimeout(() => {
+            switch(pageId) {
+                case 'dashboardPage':
+                    loadDashboard();
+                    break;
+                case 'transactionsPage':
+                    loadTransactions();
+                    break;
+                case 'statsPage':
+                    loadStats();
+                    break;
+                case 'friendsPage':
+                    loadFriends();
+                    break;
+            }
+        }, 50);
     }
 
     // ==================== MODAL MANAGEMENT ====================
@@ -2134,38 +2454,258 @@
         }
     }
 
+    // ==================== TRANSACTION DETAIL VIEW (NEW) ====================
+    async function viewTransactionDetail(id) {
+        const expense = await dbGet(STORES.expenses, id);
+        if (!expense) return;
+
+        currentViewingExpenseId = id;
+        const cat = allCategories[expense.category] || expenseCategories.other;
+        const isExpense = expense.type === 'expense';
+
+        let splitInfo = '';
+        if (expense.splits && expense.splits.length > 0) {
+            const friends = await dbGetAll(STORES.friends);
+            const friendTx = await dbGetAll(STORES.friendTransactions);
+
+            splitInfo = '<div class="detail-row"><span class="detail-label"><span class="material-icons">group</span>Split With</span></div>';
+
+            for (const split of expense.splits) {
+                const friend = friends.find(f => f.id === split.friendId);
+                const splitTx = friendTx.find(tx => tx.expenseId === id && tx.friendId === split.friendId && tx.isSplit);
+                const settled = splitTx ? splitTx.settled : split.settled;
+
+                splitInfo += `
+                    <div class="detail-row" style="padding-left: 30px;">
+                        <span class="detail-label">${friend ? friend.name : 'Unknown'}</span>
+                        <span class="detail-value">
+                            ${formatCurrency(split.amount)}
+                            <span class="badge ${settled ? 'badge-success' : 'badge-warning'}" style="margin-left:5px;">
+                                ${settled ? 'Settled' : 'Pending'}
+                            </span>
+                        </span>
+                    </div>
+                `;
+            }
+        }
+
+        const content = `
+            <div class="transaction-detail-header">
+                <div class="transaction-detail-icon ${cat.class}">
+                    <span class="material-icons">${cat.icon}</span>
+                </div>
+                <div class="transaction-detail-amount ${expense.type}">
+                    ${isExpense ? '-' : '+'}${formatCurrency(expense.amount)}
+                </div>
+                <div class="transaction-detail-desc">${expense.description}</div>
+            </div>
+
+            <div class="transaction-detail-info">
+                <div class="detail-row">
+                    <span class="detail-label"><span class="material-icons">category</span>Category</span>
+                    <span class="detail-value">${cat.label || expense.category}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label"><span class="material-icons">event</span>Date</span>
+                    <span class="detail-value">${formatFullDate(expense.date)}</span>
+                </div>
+                ${expense.time ? `
+                <div class="detail-row">
+                    <span class="detail-label"><span class="material-icons">schedule</span>Time</span>
+                    <span class="detail-value">${formatTime(expense.time)}</span>
+                </div>
+                ` : ''}
+                <div class="detail-row">
+                    <span class="detail-label"><span class="material-icons">swap_vert</span>Type</span>
+                    <span class="detail-value">
+                        <span class="badge ${isExpense ? 'badge-danger' : 'badge-success'}">
+                            ${isExpense ? 'Expense' : 'Income'}
+                        </span>
+                    </span>
+                </div>
+                ${expense.notes ? `
+                <div class="detail-row">
+                    <span class="detail-label"><span class="material-icons">notes</span>Notes</span>
+                    <span class="detail-value">${expense.notes}</span>
+                </div>
+                ` : ''}
+                ${splitInfo}
+            </div>
+
+            <div class="transaction-detail-actions">
+                <button class="btn btn-primary" id="editTransactionBtn">
+                    <span class="material-icons">edit</span>
+                    Edit
+                </button>
+                <button class="btn btn-danger" id="deleteTransactionBtn">
+                    <span class="material-icons">delete</span>
+                    Delete
+                </button>
+            </div>
+        `;
+
+        document.getElementById('transactionDetailContent').innerHTML = content;
+        openModal('transactionDetailModal');
+
+        // Add event listeners
+        document.getElementById('editTransactionBtn').addEventListener('click', () => {
+            closeModal('transactionDetailModal');
+            editExpense(currentViewingExpenseId);
+        });
+
+        document.getElementById('deleteTransactionBtn').addEventListener('click', () => {
+            closeModal('transactionDetailModal');
+            deleteExpense(currentViewingExpenseId);
+        });
+    }
+
+    // ==================== SUMMARY CARD CLICK HANDLERS (NEW) ====================
+    async function showSummaryDetail(type) {
+        const expenses = await dbGetAll(STORES.expenses);
+        const { startDate, endDate } = getDateRange(currentFilter);
+
+        const filteredExpenses = expenses.filter(e => {
+            const expenseDate = new Date(e.date);
+            return expenseDate >= startDate && expenseDate <= endDate;
+        });
+
+        let title = '';
+        let content = '';
+
+        switch(type) {
+            case 'income':
+                title = '<span class="material-icons">trending_up</span> Income Details';
+                const incomeItems = filteredExpenses.filter(e => e.type === 'income');
+                if (incomeItems.length === 0) {
+                    content = '<div class="empty-state"><span class="material-icons">money_off</span><p>No income in this period</p></div>';
+                } else {
+                    content = incomeItems.map(e => `
+                        <div class="summary-detail-item" data-expense-id="${e.id}">
+                            <div>
+                                <div style="font-weight:500;">${e.description}</div>
+                                <div style="font-size:0.75rem;color:var(--gray-500);">${formatDate(e.date)}</div>
+                            </div>
+                            <span style="color:var(--secondary);font-weight:600;">+${formatCurrency(e.amount)}</span>
+                        </div>
+                    `).join('');
+                }
+                break;
+
+            case 'expense':
+                title = '<span class="material-icons">trending_down</span> Expense Details';
+                const expenseItems = filteredExpenses.filter(e => e.type === 'expense');
+                if (expenseItems.length === 0) {
+                    content = '<div class="empty-state"><span class="material-icons">sentiment_satisfied</span><p>No expenses in this period</p></div>';
+                } else {
+                    content = expenseItems.map(e => `
+                        <div class="summary-detail-item" data-expense-id="${e.id}">
+                            <div>
+                                <div style="font-weight:500;">${e.description}</div>
+                                <div style="font-size:0.75rem;color:var(--gray-500);">${formatDate(e.date)}</div>
+                            </div>
+                            <span style="color:var(--danger);font-weight:600;">-${formatCurrency(e.amount)}</span>
+                        </div>
+                    `).join('');
+                }
+                break;
+
+            case 'balance':
+                title = '<span class="material-icons">account_balance</span> Balance Summary';
+                const totalIncome = filteredExpenses.filter(e => e.type === 'income').reduce((sum, e) => sum + e.amount, 0);
+                const totalExpense = filteredExpenses.filter(e => e.type === 'expense').reduce((sum, e) => sum + e.amount, 0);
+                content = `
+                    <div class="summary-detail-item">
+                        <span style="color:var(--secondary);">Total Income</span>
+                        <span style="color:var(--secondary);font-weight:600;">+${formatCurrency(totalIncome)}</span>
+                    </div>
+                    <div class="summary-detail-item">
+                        <span style="color:var(--danger);">Total Expenses</span>
+                        <span style="color:var(--danger);font-weight:600;">-${formatCurrency(totalExpense)}</span>
+                    </div>
+                    <div class="summary-detail-item" style="background:var(--gray-100);border-radius:8px;margin-top:10px;padding:15px;">
+                        <span style="font-weight:600;">Net Balance</span>
+                        <span style="font-weight:700;font-size:1.2rem;color:${totalIncome - totalExpense >= 0 ? 'var(--secondary)' : 'var(--danger)'};">
+                            ${totalIncome - totalExpense >= 0 ? '+' : ''}${formatCurrency(totalIncome - totalExpense)}
+                        </span>
+                    </div>
+                `;
+                break;
+
+            case 'pending':
+                title = '<span class="material-icons">pending</span> Pending Amounts';
+                const friendTx = await dbGetAll(STORES.friendTransactions);
+                const friends = await dbGetAll(STORES.friends);
+
+                let pendingContent = '';
+                let hasItems = false;
+
+                friends.forEach(friend => {
+                    const friendTransactions = friendTx.filter(tx => tx.friendId === friend.id);
+                    let balance = 0;
+                    friendTransactions.forEach(tx => {
+                        if (tx.type === 'give') balance += tx.amount;
+                        else balance -= tx.amount;
+                    });
+
+                    if (balance !== 0) {
+                        hasItems = true;
+                        pendingContent += `
+                            <div class="summary-detail-item" data-friend-id="${friend.id}">
+                                <div style="display:flex;align-items:center;gap:10px;">
+                                    <div style="width:35px;height:35px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:600;">
+                                        ${friend.name.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div>
+                                        <div style="font-weight:500;">${friend.name}</div>
+                                        <div style="font-size:0.75rem;color:var(--gray-500);">
+                                            ${balance > 0 ? 'owes you' : 'you owe'}
+                                        </div>
+                                    </div>
+                                </div>
+                                <span style="color:${balance > 0 ? 'var(--secondary)' : 'var(--danger)'};font-weight:600;">
+                                    ${formatCurrency(balance)}
+                                </span>
+                            </div>
+                        `;
+                    }
+                });
+
+                content = hasItems ? pendingContent : '<div class="empty-state"><span class="material-icons">check_circle</span><p>No pending amounts!</p></div>';
+                break;
+        }
+
+        document.getElementById('summaryDetailTitle').innerHTML = title;
+        document.getElementById('summaryDetailList').innerHTML = content;
+        openModal('summaryDetailModal');
+    }
+
     // ==================== EXPENSE MANAGEMENT ====================
     function resetExpenseForm() {
         document.getElementById('expenseForm').reset();
         document.getElementById('transactionId').value = '';
         document.getElementById('transactionType').value = 'expense';
+        document.getElementById('expenseModalTitle').innerHTML = '<span class="material-icons">add_circle</span> Add Transaction';
 
-        // Set default date and time
         const now = new Date();
         document.getElementById('expenseDate').value = now.toISOString().split('T')[0];
         document.getElementById('expenseTime').value = now.toTimeString().slice(0, 5);
 
-        // Reset expense category selection
         document.querySelectorAll('#categoryGrid .category-option').forEach(opt => opt.classList.remove('selected'));
         const foodOption = document.querySelector('#categoryGrid .category-option[data-category="food"]');
         if (foodOption) foodOption.classList.add('selected');
 
-        // Reset income category selection
         document.querySelectorAll('#incomeCategoryGrid .category-option').forEach(opt => opt.classList.remove('selected'));
         const salaryOption = document.querySelector('#incomeCategoryGrid .category-option[data-category="salary"]');
         if (salaryOption) salaryOption.classList.add('selected');
 
-        // Reset tabs
         document.querySelectorAll('#transactionTypeTabs .tab').forEach(tab => tab.classList.remove('active'));
         const expenseTab = document.querySelector('#transactionTypeTabs .tab[data-type="expense"]');
         if (expenseTab) expenseTab.classList.add('active');
 
-        // Show expense categories, hide income categories
         document.getElementById('expenseCategorySection').style.display = 'block';
         document.getElementById('incomeCategorySection').style.display = 'none';
         document.getElementById('splitSection').style.display = 'block';
 
-        // Reset split section
         document.getElementById('splitToggle').classList.remove('active');
         document.getElementById('splitDetails').style.display = 'none';
         document.getElementById('splitItems').innerHTML = '';
@@ -2174,12 +2714,10 @@
     function switchTransactionType(type) {
         document.getElementById('transactionType').value = type;
 
-        // Update tabs
         document.querySelectorAll('#transactionTypeTabs .tab').forEach(tab => {
             tab.classList.toggle('active', tab.dataset.type === type);
         });
 
-        // Show/hide category sections
         document.getElementById('expenseCategorySection').style.display = type === 'expense' ? 'block' : 'none';
         document.getElementById('incomeCategorySection').style.display = type === 'income' ? 'block' : 'none';
         document.getElementById('splitSection').style.display = type === 'expense' ? 'block' : 'none';
@@ -2235,7 +2773,6 @@
         const type = document.getElementById('transactionType').value;
         const id = document.getElementById('transactionId').value || generateId();
 
-        // Get category based on type
         let category;
         if (type === 'expense') {
             const selected = document.querySelector('#categoryGrid .category-option.selected');
@@ -2250,55 +2787,66 @@
             return;
         }
 
-        const expense = {
-            id,
-            amount,
-            description,
-            category,
-            date,
-            time,
-            notes,
-            type,
-            createdAt: new Date().toISOString()
-        };
+        showActionLoading();
 
-        // Handle splits
-        const splitToggle = document.getElementById('splitToggle');
-        if (type === 'expense' && splitToggle.classList.contains('active')) {
-            const splitItems = document.querySelectorAll('.split-item');
-            const splits = [];
+        try {
+            const expense = {
+                id,
+                amount,
+                description,
+                category,
+                date,
+                time,
+                notes,
+                type,
+                createdAt: new Date().toISOString()
+            };
 
-            for (const item of splitItems) {
-                const friendId = item.querySelector('.split-friend').value;
-                const splitAmount = parseFloat(item.querySelector('.split-amount').value);
+            const splitToggle = document.getElementById('splitToggle');
+            if (type === 'expense' && splitToggle.classList.contains('active')) {
+                const splitItems = document.querySelectorAll('.split-item');
+                const splits = [];
 
-                if (friendId && splitAmount) {
-                    splits.push({ friendId, amount: splitAmount, settled: false });
+                for (const item of splitItems) {
+                    const friendId = item.querySelector('.split-friend').value;
+                    const splitAmount = parseFloat(item.querySelector('.split-amount').value);
 
-                    // Record friend transaction
-                    await dbAdd(STORES.friendTransactions, {
-                        id: generateId(),
-                        friendId,
-                        amount: splitAmount,
-                        type: 'give',
-                        description: `Split: ${description}`,
-                        date: date,
-                        expenseId: id,
-                        isSplit: true,
-                        settled: false,
-                        createdAt: new Date().toISOString()
-                    });
+                    if (friendId && splitAmount) {
+                        splits.push({ friendId, amount: splitAmount, settled: false });
+
+                        await dbAdd(STORES.friendTransactions, {
+                            id: generateId(),
+                            friendId,
+                            amount: splitAmount,
+                            type: 'give',
+                            description: `Split: ${description}`,
+                            date: date,
+                            expenseId: id,
+                            isSplit: true,
+                            settled: false,
+                            createdAt: new Date().toISOString()
+                        });
+                    }
                 }
+
+                expense.splits = splits;
             }
 
-            expense.splits = splits;
+            await dbPut(STORES.expenses, expense);
+
+            hideActionLoading();
+            closeModal('addExpenseModal');
+            showToast(document.getElementById('transactionId').value ? 'Transaction updated!' : 'Transaction added!');
+
+            // Refresh current page
+            const activePage = document.querySelector('.page.active');
+            if (activePage) {
+                showPage(activePage.id);
+            }
+        } catch (error) {
+            hideActionLoading();
+            showToast('Error saving transaction: ' + error.message);
         }
-
-        await dbPut(STORES.expenses, expense);
-
-        closeModal('addExpenseModal');
-        showToast(document.getElementById('transactionId').value ? 'Transaction updated!' : 'Transaction added!');
-        loadDashboard();
     }
 
     async function editExpense(id) {
@@ -2312,11 +2860,10 @@
         document.getElementById('expenseTime').value = expense.time || '';
         document.getElementById('notes').value = expense.notes || '';
         document.getElementById('transactionType').value = expense.type;
+        document.getElementById('expenseModalTitle').innerHTML = '<span class="material-icons">edit</span> Edit Transaction';
 
-        // Switch to correct type
         switchTransactionType(expense.type);
 
-        // Set category
         if (expense.type === 'expense') {
             document.querySelectorAll('#categoryGrid .category-option').forEach(opt => {
                 opt.classList.toggle('selected', opt.dataset.category === expense.category);
@@ -2331,22 +2878,38 @@
     }
 
     async function deleteExpense(id) {
-        if (confirm('Are you sure you want to delete this transaction?')) {
-            // Also delete related split transactions
-            const expense = await dbGet(STORES.expenses, id);
-            if (expense && expense.splits) {
-                const friendTx = await dbGetAll(STORES.friendTransactions);
-                const relatedTx = friendTx.filter(tx => tx.expenseId === id);
-                for (const tx of relatedTx) {
-                    await dbDelete(STORES.friendTransactions, tx.id);
+        showConfirmDialog('Delete Transaction', 'Are you sure you want to delete this transaction?', async () => {
+            showActionLoading();
+            try {
+                const expense = await dbGet(STORES.expenses, id);
+                if (expense && expense.splits) {
+                    const friendTx = await dbGetAll(STORES.friendTransactions);
+                    const relatedTx = friendTx.filter(tx => tx.expenseId === id);
+                    for (const tx of relatedTx) {
+                        await dbDelete(STORES.friendTransactions, tx.id);
+                    }
                 }
-            }
 
-            await dbDelete(STORES.expenses, id);
-            showToast('Transaction deleted!');
-            loadDashboard();
-            loadTransactions();
-        }
+                await dbDelete(STORES.expenses, id);
+                hideActionLoading();
+                showToast('Transaction deleted!');
+
+                const activePage = document.querySelector('.page.active');
+                if (activePage) {
+                    showPage(activePage.id);
+                }
+            } catch (error) {
+                hideActionLoading();
+                showToast('Error deleting transaction: ' + error.message);
+            }
+        });
+    }
+
+    function showConfirmDialog(title, message, callback) {
+        document.getElementById('confirmTitle').textContent = title;
+        document.getElementById('confirmMessage').textContent = message;
+        confirmCallback = callback;
+        document.getElementById('confirmDialog').classList.add('show');
     }
 
     // ==================== DASHBOARD ====================
@@ -2354,13 +2917,11 @@
         const expenses = await dbGetAll(STORES.expenses);
         const { startDate, endDate } = getDateRange(currentFilter);
 
-        // Filter expenses by date
         const filteredExpenses = expenses.filter(e => {
             const expenseDate = new Date(e.date);
             return expenseDate >= startDate && expenseDate <= endDate;
         });
 
-        // Calculate totals
         let totalIncome = 0;
         let totalExpense = 0;
 
@@ -2376,13 +2937,8 @@
         document.getElementById('totalExpense').textContent = formatCurrency(totalExpense);
         document.getElementById('totalBalance').textContent = formatCurrency(totalIncome - totalExpense);
 
-        // Calculate pending (from friend transactions)
         await updatePendingAmount();
-
-        // Load recent transactions
         loadRecentTransactions(filteredExpenses);
-
-        // Update chart
         updateExpenseChart(filteredExpenses);
     }
 
@@ -2445,7 +3001,7 @@
         const pendingSplits = hasSplits ? expense.splits.filter(s => !s.settled).length : 0;
 
         return `
-            <li class="expense-item" data-expense-id="${expense.id}">
+            <li class="expense-item" data-expense-id="${expense.id}" data-action="view">
                 <div class="expense-icon ${cat.class}">
                     <span class="material-icons">${cat.icon}</span>
                 </div>
@@ -2461,11 +3017,6 @@
                 </div>
                 <div class="expense-amount ${expense.type}">
                     ${isExpense ? '-' : '+'}${formatCurrency(expense.amount)}
-                </div>
-                <div class="expense-actions">
-                    <button class="icon-btn delete" data-delete-expense="${expense.id}" title="Delete">
-                        <span class="material-icons">delete</span>
-                    </button>
                 </div>
             </li>
         `;
@@ -2552,7 +3103,6 @@
             return;
         }
 
-        // Group by date
         const grouped = {};
         expenses.forEach(e => {
             if (!grouped[e.date]) {
@@ -2561,7 +3111,6 @@
             grouped[e.date].push(e);
         });
 
-        // Sort dates descending
         const sortedDates = Object.keys(grouped).sort((a, b) => new Date(b) - new Date(a));
 
         let html = '';
@@ -2618,15 +3167,12 @@
     async function loadStats() {
         const expenses = await dbGetAll(STORES.expenses);
 
-        // Calculate stats
         const expenseOnly = expenses.filter(e => e.type === 'expense');
         const totalTransactions = expenses.length;
 
-        // Days with expenses
         const uniqueDays = new Set(expenseOnly.map(e => e.date)).size;
         const avgPerDay = uniqueDays > 0 ? expenseOnly.reduce((sum, e) => sum + e.amount, 0) / uniqueDays : 0;
 
-        // Top category
         const categoryTotals = {};
         expenseOnly.forEach(e => {
             categoryTotals[e.category] = (categoryTotals[e.category] || 0) + e.amount;
@@ -2637,10 +3183,7 @@
         document.getElementById('statAvgExpense').textContent = formatCurrency(avgPerDay);
         document.getElementById('statTopCategory').textContent = topCategory ? topCategory[0].charAt(0).toUpperCase() + topCategory[0].slice(1) : '-';
 
-        // Monthly chart
         updateMonthlyChart(expenses);
-
-        // Category chart
         updateCategoryChart(expenseOnly);
     }
 
@@ -2648,7 +3191,6 @@
         const monthlyData = {};
         const now = new Date();
 
-        // Last 6 months
         for (let i = 5; i >= 0; i--) {
             const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
             const key = date.toLocaleDateString('en-US', { month: 'short' });
@@ -2763,6 +3305,12 @@
     async function loadFriends() {
         const friends = await dbGetAll(STORES.friends);
         const friendTx = await dbGetAll(STORES.friendTransactions);
+        allFriendsData = friends;
+
+        displayFriends(friends, friendTx);
+    }
+
+    function displayFriends(friends, friendTx) {
         const container = document.getElementById('friendsList');
 
         if (friends.length === 0) {
@@ -2784,12 +3332,16 @@
         friends.forEach(friend => {
             const friendTransactions = friendTx.filter(tx => tx.friendId === friend.id);
             let balance = 0;
+            let pendingSplitCount = 0;
 
             friendTransactions.forEach(tx => {
                 if (tx.type === 'give') {
                     balance += tx.amount;
                 } else {
                     balance -= tx.amount;
+                }
+                if (tx.isSplit && !tx.settled) {
+                    pendingSplitCount++;
                 }
             });
 
@@ -2807,7 +3359,15 @@
                     <div class="friend-header">
                         <div class="friend-avatar">${friend.name.charAt(0).toUpperCase()}</div>
                         <div class="friend-info">
-                            <h3>${friend.name}</h3>
+                            <h3>
+                                ${friend.name}
+                                ${pendingSplitCount > 0 ? `
+                                    <span class="friend-split-indicator">
+                                        <span class="material-icons">call_split</span>
+                                        ${pendingSplitCount}
+                                    </span>
+                                ` : ''}
+                            </h3>
                             <p>${friend.phone || 'No phone'}</p>
                         </div>
                     </div>
@@ -2821,6 +3381,22 @@
 
         container.innerHTML = html;
         updateSettleSummary(totalOwedToYou, totalYouOwe);
+    }
+
+    async function filterFriends() {
+        const searchTerm = document.getElementById('searchFriends').value.toLowerCase();
+        const friendTx = await dbGetAll(STORES.friendTransactions);
+
+        let filtered = allFriendsData;
+
+        if (searchTerm) {
+            filtered = allFriendsData.filter(f =>
+                f.name.toLowerCase().includes(searchTerm) ||
+                (f.phone && f.phone.includes(searchTerm))
+            );
+        }
+
+        displayFriends(filtered, friendTx);
     }
 
     function updateSettleSummary(owedToYou, youOwe) {
@@ -2842,7 +3418,7 @@
         } else {
             summary.innerHTML = `
                 <h3>All settled up!</h3>
-                                <p>No pending balances with friends</p>
+                <p>No pending balances with friends</p>
             `;
             summary.style.background = 'linear-gradient(135deg, #667eea, #5a67d8)';
         }
@@ -2866,19 +3442,27 @@
             return;
         }
 
-        await dbPut(STORES.friends, {
-            id,
-            name,
-            phone,
-            notes,
-            createdAt: new Date().toISOString()
-        });
+        showActionLoading();
 
-        closeModal('addFriendModal');
-        document.getElementById('friendForm').reset();
-        document.getElementById('friendId').value = '';
-        showToast('Friend saved!');
-        loadFriends();
+        try {
+            await dbPut(STORES.friends, {
+                id,
+                name,
+                phone,
+                notes,
+                createdAt: new Date().toISOString()
+            });
+
+            hideActionLoading();
+            closeModal('addFriendModal');
+            document.getElementById('friendForm').reset();
+            document.getElementById('friendId').value = '';
+            showToast('Friend saved!');
+            loadFriends();
+        } catch (error) {
+            hideActionLoading();
+            showToast('Error saving friend: ' + error.message);
+        }
     }
 
     async function openFriendDetail(friendId) {
@@ -2893,21 +3477,15 @@
         document.getElementById('friendGiveName').textContent = friend.name;
         document.getElementById('friendReceiveName').textContent = friend.name;
 
-        // Calculate and display balance
         await updateFriendBalance(friendId);
-
-        // Load pending splits
         await loadPendingSplits(friendId);
 
-        // Reset form fields
         document.getElementById('giveAmount').value = '';
         document.getElementById('giveDescription').value = '';
         document.getElementById('receiveAmount').value = '';
         document.getElementById('receiveDescription').value = '';
 
-        // Show give section by default and highlight tab
         showFriendAction('give');
-
         openModal('friendDetailModal');
     }
 
@@ -2933,7 +3511,6 @@
             <div class="label">${label}</div>
         `;
 
-        // Update history
         await loadFriendHistory(friendId);
     }
 
@@ -2971,51 +3548,61 @@
     }
 
     async function settleSplitDirectly(splitId) {
-        const friendTx = await dbGetAll(STORES.friendTransactions);
-        const split = friendTx.find(tx => tx.id === splitId);
+        showActionLoading();
 
-        if (!split) return;
+        try {
+            const friendTx = await dbGetAll(STORES.friendTransactions);
+            const split = friendTx.find(tx => tx.id === splitId);
 
-        // Mark split as settled
-        split.settled = true;
-        await dbPut(STORES.friendTransactions, split);
+            if (!split) {
+                hideActionLoading();
+                return;
+            }
 
-        // Add a receive transaction to balance it out
-        await dbAdd(STORES.friendTransactions, {
-            id: generateId(),
-            friendId: split.friendId,
-            amount: split.amount,
-            type: 'receive',
-            description: `Settled: ${split.description}`,
-            date: new Date().toISOString().split('T')[0],
-            settledSplitId: split.id,
-            createdAt: new Date().toISOString()
-        });
+            split.settled = true;
+            await dbPut(STORES.friendTransactions, split);
 
-        // Check if we should update the original expense
-        if (split.expenseId) {
-            const expense = await dbGet(STORES.expenses, split.expenseId);
-            if (expense && expense.splits) {
-                const allSplits = await dbGetAll(STORES.friendTransactions);
-                const expenseSplits = allSplits.filter(tx => tx.expenseId === split.expenseId && tx.isSplit);
-                const allSettled = expenseSplits.every(s => s.settled);
+            await dbAdd(STORES.friendTransactions, {
+                id: generateId(),
+                friendId: split.friendId,
+                amount: split.amount,
+                type: 'receive',
+                description: `Settled: ${split.description}`,
+                date: new Date().toISOString().split('T')[0],
+                settledSplitId: split.id,
+                createdAt: new Date().toISOString()
+            });
 
-                if (allSettled) {
-                    const totalSplitAmount = expenseSplits.reduce((sum, s) => sum + s.amount, 0);
-                    const newAmount = expense.amount - totalSplitAmount;
+            if (split.expenseId) {
+                const expense = await dbGet(STORES.expenses, split.expenseId);
+                if (expense && expense.splits) {
+                    const allSplits = await dbGetAll(STORES.friendTransactions);
+                    const expenseSplits = allSplits.filter(tx => tx.expenseId === split.expenseId && tx.isSplit);
+                    const allSettled = expenseSplits.every(s => s.settled);
 
-                    if (newAmount > 0 && newAmount !== expense.amount) {
-                        showUpdateTransactionDialog(expense, newAmount);
+                    if (allSettled) {
+                        const totalSplitAmount = expenseSplits.reduce((sum, s) => sum + s.amount, 0);
+                        const newAmount = expense.amount - totalSplitAmount;
+
+                        if (newAmount > 0 && newAmount !== expense.amount) {
+                            hideActionLoading();
+                            showUpdateTransactionDialog(expense, newAmount);
+                            return;
+                        }
                     }
                 }
             }
-        }
 
-        showToast('Split settled!');
-        await updateFriendBalance(currentFriendId);
-        await loadPendingSplits(currentFriendId);
-        await loadFriends();
-        await updatePendingAmount();
+            hideActionLoading();
+            showToast('Split settled!');
+            await updateFriendBalance(currentFriendId);
+            await loadPendingSplits(currentFriendId);
+            await loadFriends();
+            await updatePendingAmount();
+        } catch (error) {
+            hideActionLoading();
+            showToast('Error settling split: ' + error.message);
+        }
     }
 
     function showUpdateTransactionDialog(expense, newAmount) {
@@ -3034,6 +3621,10 @@
                 showToast('Transaction updated!');
                 loadDashboard();
             }
+            await updateFriendBalance(currentFriendId);
+            await loadPendingSplits(currentFriendId);
+            await loadFriends();
+            await updatePendingAmount();
         };
 
         document.getElementById('updateTransactionDialog').classList.add('show');
@@ -3064,10 +3655,10 @@
             <div class="history-item">
                 <div class="history-item-info">
                     <div class="history-item-title">${tx.description || (tx.type === 'give' ? 'You gave' : 'You received')}</div>
-                    <div class="history-item-date">
-                        ${formatDate(tx.date || tx.createdAt.split('T')[0])}
-                        ${tx.isSplit ? '<span class="badge badge-warning" style="margin-left:5px;">Split</span>' : ''}
-                        ${tx.settled ? '<span class="badge badge-success" style="margin-left:5px;">Settled</span>' : ''}
+                    <div class="history-item-meta">
+                        <span class="history-item-date">${formatDate(tx.date || tx.createdAt.split('T')[0])}</span>
+                        ${tx.isSplit ? `<span class="badge badge-warning"><span class="material-icons">call_split</span>Split</span>` : ''}
+                        ${tx.settled ? `<span class="badge badge-success"><span class="material-icons">check</span>Settled</span>` : ''}
                     </div>
                 </div>
                 <div class="history-item-amount">
@@ -3076,7 +3667,7 @@
                     </span>
                 </div>
                 <div class="history-item-actions">
-                    <button class="icon-btn delete" data-delete-friend-tx="${tx.id}" title="Delete">
+                    <button class="icon-btn" data-delete-friend-tx="${tx.id}" title="Delete">
                         <span class="material-icons" style="font-size:18px;">delete</span>
                     </button>
                 </div>
@@ -3085,28 +3676,32 @@
     }
 
     async function deleteFriendTransaction(txId) {
-        if (confirm('Delete this transaction?')) {
-            await dbDelete(STORES.friendTransactions, txId);
-            showToast('Transaction deleted!');
-            await updateFriendBalance(currentFriendId);
-            await loadPendingSplits(currentFriendId);
-            await loadFriends();
-            await updatePendingAmount();
-        }
+        showConfirmDialog('Delete Transaction', 'Delete this transaction?', async () => {
+            showActionLoading();
+            try {
+                await dbDelete(STORES.friendTransactions, txId);
+                hideActionLoading();
+                showToast('Transaction deleted!');
+                await updateFriendBalance(currentFriendId);
+                await loadPendingSplits(currentFriendId);
+                await loadFriends();
+                await updatePendingAmount();
+            } catch (error) {
+                hideActionLoading();
+                showToast('Error deleting: ' + error.message);
+            }
+        });
     }
 
     function showFriendAction(action) {
-        // Hide all sections
         document.querySelectorAll('.friend-action-section').forEach(s => s.style.display = 'none');
 
-        // Show selected section
         const sectionId = `friendAction${action.charAt(0).toUpperCase() + action.slice(1)}`;
         const section = document.getElementById(sectionId);
         if (section) {
             section.style.display = 'block';
         }
 
-        // Update tab active states
         document.querySelectorAll('#friendActionTabs .tab').forEach(tab => {
             tab.classList.remove('active');
             if (tab.dataset.action === action) {
@@ -3124,7 +3719,6 @@
             return;
         }
 
-        // Check if this matches any pending splits (only for receive)
         if (type === 'receive' && pendingSplitsForFriend.length > 0) {
             const matchingSplit = pendingSplitsForFriend.find(s => Math.abs(s.amount - amount) < 0.01);
 
@@ -3154,24 +3748,32 @@
     }
 
     async function addFriendTransaction(type, amount, description) {
-        await dbAdd(STORES.friendTransactions, {
-            id: generateId(),
-            friendId: currentFriendId,
-            amount,
-            type,
-            description: description || (type === 'give' ? 'Payment given' : 'Payment received'),
-            date: new Date().toISOString().split('T')[0],
-            createdAt: new Date().toISOString()
-        });
+        showActionLoading();
 
-        document.getElementById(`${type}Amount`).value = '';
-        document.getElementById(`${type}Description`).value = '';
+        try {
+            await dbAdd(STORES.friendTransactions, {
+                id: generateId(),
+                friendId: currentFriendId,
+                amount,
+                type,
+                description: description || (type === 'give' ? 'Payment given' : 'Payment received'),
+                date: new Date().toISOString().split('T')[0],
+                createdAt: new Date().toISOString()
+            });
 
-        showToast('Transaction recorded!');
-        await updateFriendBalance(currentFriendId);
-        await loadPendingSplits(currentFriendId);
-        await loadFriends();
-        await updatePendingAmount();
+            document.getElementById(`${type}Amount`).value = '';
+            document.getElementById(`${type}Description`).value = '';
+
+            hideActionLoading();
+            showToast('Transaction recorded!');
+            await updateFriendBalance(currentFriendId);
+            await loadPendingSplits(currentFriendId);
+            await loadFriends();
+            await updatePendingAmount();
+        } catch (error) {
+            hideActionLoading();
+            showToast('Error recording transaction: ' + error.message);
+        }
     }
 
     function closeSettleSplitDialog(shouldSettle) {
@@ -3183,45 +3785,53 @@
     }
 
     async function settleUp() {
-        if (!confirm('Mark all transactions as settled? This will zero out the balance.')) return;
+        showConfirmDialog('Settle Up', 'Mark all transactions as settled? This will zero out the balance.', async () => {
+            showActionLoading();
 
-        const friendTx = await dbGetAll(STORES.friendTransactions);
-        const transactions = friendTx.filter(tx => tx.friendId === currentFriendId);
+            try {
+                const friendTx = await dbGetAll(STORES.friendTransactions);
+                const transactions = friendTx.filter(tx => tx.friendId === currentFriendId);
 
-        let balance = 0;
-        transactions.forEach(tx => {
-            if (tx.type === 'give') {
-                balance += tx.amount;
-            } else {
-                balance -= tx.amount;
+                let balance = 0;
+                transactions.forEach(tx => {
+                    if (tx.type === 'give') {
+                        balance += tx.amount;
+                    } else {
+                        balance -= tx.amount;
+                    }
+                });
+
+                if (balance !== 0) {
+                    await dbAdd(STORES.friendTransactions, {
+                        id: generateId(),
+                        friendId: currentFriendId,
+                        amount: Math.abs(balance),
+                        type: balance > 0 ? 'receive' : 'give',
+                        description: 'Settled up',
+                        date: new Date().toISOString().split('T')[0],
+                        isSettlement: true,
+                        createdAt: new Date().toISOString()
+                    });
+
+                    for (const tx of transactions) {
+                        if (tx.isSplit && !tx.settled) {
+                            tx.settled = true;
+                            await dbPut(STORES.friendTransactions, tx);
+                        }
+                    }
+                }
+
+                hideActionLoading();
+                showToast('Settled up!');
+                await updateFriendBalance(currentFriendId);
+                await loadPendingSplits(currentFriendId);
+                await loadFriends();
+                await updatePendingAmount();
+            } catch (error) {
+                hideActionLoading();
+                showToast('Error settling: ' + error.message);
             }
         });
-
-        if (balance !== 0) {
-            await dbAdd(STORES.friendTransactions, {
-                id: generateId(),
-                friendId: currentFriendId,
-                amount: Math.abs(balance),
-                type: balance > 0 ? 'receive' : 'give',
-                description: 'Settled up',
-                date: new Date().toISOString().split('T')[0],
-                isSettlement: true,
-                createdAt: new Date().toISOString()
-            });
-
-            for (const tx of transactions) {
-                if (tx.isSplit && !tx.settled) {
-                    tx.settled = true;
-                    await dbPut(STORES.friendTransactions, tx);
-                }
-            }
-        }
-
-        showToast('Settled up!');
-        await updateFriendBalance(currentFriendId);
-        await loadPendingSplits(currentFriendId);
-        await loadFriends();
-        await updatePendingAmount();
     }
 
     async function editCurrentFriend() {
@@ -3239,20 +3849,28 @@
     }
 
     async function deleteFriend() {
-        if (!confirm('Delete this friend and all their transactions?')) return;
+        showConfirmDialog('Delete Friend', 'Delete this friend and all their transactions?', async () => {
+            showActionLoading();
 
-        const friendTx = await dbGetAll(STORES.friendTransactions);
-        const transactions = friendTx.filter(tx => tx.friendId === currentFriendId);
-        for (const tx of transactions) {
-            await dbDelete(STORES.friendTransactions, tx.id);
-        }
+            try {
+                const friendTx = await dbGetAll(STORES.friendTransactions);
+                const transactions = friendTx.filter(tx => tx.friendId === currentFriendId);
+                for (const tx of transactions) {
+                    await dbDelete(STORES.friendTransactions, tx.id);
+                }
 
-        await dbDelete(STORES.friends, currentFriendId);
+                await dbDelete(STORES.friends, currentFriendId);
 
-        showToast('Friend deleted!');
-        closeModal('friendDetailModal');
-        loadFriends();
-        updatePendingAmount();
+                hideActionLoading();
+                showToast('Friend deleted!');
+                closeModal('friendDetailModal');
+                loadFriends();
+                updatePendingAmount();
+            } catch (error) {
+                hideActionLoading();
+                showToast('Error deleting friend: ' + error.message);
+            }
+        });
     }
 
     // ==================== SETTINGS ====================
@@ -3274,29 +3892,40 @@
     }
 
     async function exportData() {
-        const data = {
-            expenses: await dbGetAll(STORES.expenses),
-            friends: await dbGetAll(STORES.friends),
-            friendTransactions: await dbGetAll(STORES.friendTransactions),
-            settings: JSON.parse(localStorage.getItem('settings') || '{}'),
-            exportDate: new Date().toISOString()
-        };
+        showActionLoading();
 
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `expense-manager-backup-${new Date().toISOString().split('T')[0]}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        showToast('Data exported!');
+        try {
+            const data = {
+                expenses: await dbGetAll(STORES.expenses),
+                friends: await dbGetAll(STORES.friends),
+                friendTransactions: await dbGetAll(STORES.friendTransactions),
+                settings: JSON.parse(localStorage.getItem('settings') || '{}'),
+                exportDate: new Date().toISOString()
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `expense-manager-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            hideActionLoading();
+            showToast('Data exported!');
+        } catch (error) {
+            hideActionLoading();
+            showToast('Error exporting: ' + error.message);
+        }
     }
 
     async function importData(event) {
         const file = event.target.files[0];
         if (!file) return;
+
+        showActionLoading();
 
         try {
             const text = await file.text();
@@ -3327,10 +3956,12 @@
                 localStorage.setItem('settings', JSON.stringify(data.settings));
             }
 
+            hideActionLoading();
             showToast('Data imported successfully!');
             loadDashboard();
             loadSettings();
         } catch (error) {
+            hideActionLoading();
             showToast('Error importing data: ' + error.message);
         }
 
@@ -3338,18 +3969,25 @@
     }
 
     async function clearAllData() {
-        if (!confirm('Are you sure you want to delete ALL data? This cannot be undone!')) return;
-        if (!confirm('Really delete everything?')) return;
+        showConfirmDialog('Clear All Data', 'Are you sure you want to delete ALL data? This cannot be undone!', async () => {
+            showActionLoading();
 
-        await dbClear(STORES.expenses);
-        await dbClear(STORES.friends);
-        await dbClear(STORES.friendTransactions);
-        localStorage.removeItem('settings');
+            try {
+                await dbClear(STORES.expenses);
+                await dbClear(STORES.friends);
+                await dbClear(STORES.friendTransactions);
+                localStorage.removeItem('settings');
 
-        showToast('All data cleared!');
-        loadDashboard();
-        loadFriends();
-        loadSettings();
+                hideActionLoading();
+                showToast('All data cleared!');
+                loadDashboard();
+                loadFriends();
+                loadSettings();
+            } catch (error) {
+                hideActionLoading();
+                showToast('Error clearing data: ' + error.message);
+            }
+        });
     }
 
     function applyDateRange() {
@@ -3419,6 +4057,12 @@
             applyDateRange();
         });
 
+        // Summary Card Clicks
+        document.getElementById('incomeCard').addEventListener('click', () => showSummaryDetail('income'));
+        document.getElementById('expenseCard').addEventListener('click', () => showSummaryDetail('expense'));
+        document.getElementById('balanceCard').addEventListener('click', () => showSummaryDetail('balance'));
+        document.getElementById('pendingCard').addEventListener('click', () => showSummaryDetail('pending'));
+
         // Modal Close Buttons
         document.getElementById('closeExpenseModal').addEventListener('click', () => closeModal('addExpenseModal'));
         document.getElementById('cancelExpenseBtn').addEventListener('click', () => closeModal('addExpenseModal'));
@@ -3426,6 +4070,9 @@
         document.getElementById('cancelFriendBtn').addEventListener('click', () => closeModal('addFriendModal'));
         document.getElementById('closeFriendDetailModal').addEventListener('click', () => closeModal('friendDetailModal'));
         document.getElementById('closeSettingsModal').addEventListener('click', () => closeModal('settingsModal'));
+        document.getElementById('closeTransactionDetailModal').addEventListener('click', () => closeModal('transactionDetailModal'));
+        document.getElementById('closeSummaryDetailModal').addEventListener('click', () => closeModal('summaryDetailModal'));
+        document.getElementById('summaryDetailCloseBtn').addEventListener('click', () => closeModal('summaryDetailModal'));
 
         // Save Buttons
         document.getElementById('saveExpenseBtn').addEventListener('click', function(e) {
@@ -3486,7 +4133,7 @@
             addSplitItem();
         });
 
-        // Split Items - Remove Button (Event Delegation)
+        // Split Items - Remove Button
         document.getElementById('splitItems').addEventListener('click', function(e) {
             const btn = e.target.closest('.icon-btn[data-split-id]');
             if (btn) {
@@ -3533,39 +4180,42 @@
         // Search Transactions
         document.getElementById('searchTransactions').addEventListener('input', filterTransactions);
 
-        // Recent Transactions - Click to Edit, Delete Button
-        document.getElementById('recentTransactions').addEventListener('click', function(e) {
-            const deleteBtn = e.target.closest('[data-delete-expense]');
-            if (deleteBtn) {
-                e.preventDefault();
-                e.stopPropagation();
-                deleteExpense(deleteBtn.dataset.deleteExpense);
-                return;
-            }
+        // Search Friends
+        document.getElementById('searchFriends').addEventListener('input', filterFriends);
 
+        // Recent Transactions - Click to View Detail
+        document.getElementById('recentTransactions').addEventListener('click', function(e) {
             const expenseItem = e.target.closest('.expense-item[data-expense-id]');
             if (expenseItem) {
                 e.preventDefault();
                 e.stopPropagation();
-                editExpense(expenseItem.dataset.expenseId);
+                viewTransactionDetail(expenseItem.dataset.expenseId);
             }
         });
 
-        // Transactions List - Click to Edit, Delete Button
+        // Transactions List - Click to View Detail
         document.getElementById('transactionsList').addEventListener('click', function(e) {
-            const deleteBtn = e.target.closest('[data-delete-expense]');
-            if (deleteBtn) {
-                e.preventDefault();
-                e.stopPropagation();
-                deleteExpense(deleteBtn.dataset.deleteExpense);
-                return;
-            }
-
             const expenseItem = e.target.closest('.expense-item[data-expense-id]');
             if (expenseItem) {
                 e.preventDefault();
                 e.stopPropagation();
-                editExpense(expenseItem.dataset.expenseId);
+                viewTransactionDetail(expenseItem.dataset.expenseId);
+            }
+        });
+
+        // Summary Detail List - Click to View Transaction or Friend
+        document.getElementById('summaryDetailList').addEventListener('click', function(e) {
+            const expenseItem = e.target.closest('[data-expense-id]');
+            if (expenseItem) {
+                closeModal('summaryDetailModal');
+                viewTransactionDetail(expenseItem.dataset.expenseId);
+                return;
+            }
+
+            const friendItem = e.target.closest('[data-friend-id]');
+            if (friendItem) {
+                closeModal('summaryDetailModal');
+                openFriendDetail(friendItem.dataset.friendId);
             }
         });
 
@@ -3717,21 +4367,28 @@
 
     // ==================== INITIALIZATION ====================
     async function init() {
+        showLoading();
+
         try {
             await initDB();
             loadSettings();
             setupEventListeners();
-            loadDashboard();
+            await loadDashboard();
 
-            // Set default dates for date range picker
             const today = new Date();
             const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
             document.getElementById('startDate').value = firstOfMonth.toISOString().split('T')[0];
             document.getElementById('endDate').value = today.toISOString().split('T')[0];
 
             console.log('Expense Manager initialized successfully!');
+
+            // Delay hiding to show smooth animation
+            setTimeout(() => {
+                hideLoading();
+            }, 500);
         } catch (error) {
             console.error('Failed to initialize:', error);
+            hideLoading();
             showToast('Error initializing app: ' + error.message);
         }
     }
