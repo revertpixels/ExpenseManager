@@ -153,6 +153,22 @@
             font-size: 1.2rem;
         }
 
+        .header-logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            object-fit: contain;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px;
+        }
+
+        @media (max-width: 480px) {
+            .header-logo {
+                width: 28px;
+                height: 28px;
+            }
+        }
+
         @media (max-width: 480px) {
             .header-logo {
                 width: 28px;
@@ -1581,7 +1597,7 @@
 <header class="header">
     <div class="header-content">
         <h1>
-            <div class="header-logo">💰</div>
+            <img src="favicon.png" alt="Logo" class="header-logo" onerror="this.style.display='none'">
             Expense Manager
         </h1>
         <div class="header-actions">
