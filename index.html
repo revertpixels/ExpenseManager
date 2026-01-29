@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#667eea">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Expense Manager Pro</title>
 
@@ -15,7 +13,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Chart.js -->
+    <!-- Chart.js with fallback -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -141,6 +139,7 @@
             z-index: 100;
             box-shadow: var(--shadow-lg);
         }
+
         .header-logo {
             width: 32px;
             height: 32px;
@@ -148,14 +147,10 @@
             object-fit: contain;
             background: rgba(255, 255, 255, 0.2);
             padding: 4px;
-        }
-        .header-logo {
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            object-fit: contain;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
         }
 
         @media (max-width: 480px) {
@@ -207,6 +202,12 @@
             transform: scale(1.05);
         }
 
+        .icon-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         /* Main Container */
         .container {
             max-width: 1200px;
@@ -242,6 +243,28 @@
             display: flex;
             align-items: center;
             gap: 8px;
+        }
+
+        /* Filter Info Banner - NEW */
+        .filter-info {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: var(--radius-sm);
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+
+        .filter-info-text {
+            color: var(--gray-600);
+        }
+
+        .filter-info-count {
+            font-weight: 600;
+            color: var(--primary);
         }
 
         /* Summary Cards - Now Clickable */
@@ -445,12 +468,18 @@
             touch-action: manipulation;
         }
 
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
         .btn-primary {
             background: var(--primary);
             color: var(--white);
         }
 
-        .btn-primary:hover, .btn-primary:active {
+        .btn-primary:hover:not(:disabled), .btn-primary:active:not(:disabled) {
             background: var(--primary-dark);
             transform: translateY(-2px);
         }
@@ -460,7 +489,7 @@
             color: var(--gray-700);
         }
 
-        .btn-secondary:hover {
+        .btn-secondary:hover:not(:disabled) {
             background: var(--gray-300);
         }
 
@@ -602,6 +631,7 @@
         .cat-family { background: rgba(245, 101, 101, 0.1); color: var(--danger); }
         .cat-refund { background: rgba(56, 178, 172, 0.1); color: #38b2ac; }
         .cat-income-other { background: rgba(113, 128, 150, 0.1); color: var(--gray-600); }
+        .cat-business { background: rgba(159, 122, 234, 0.1); color: #9f7aea; }
 
         /* Friends/Profiles Section */
         .friends-grid {
@@ -948,6 +978,22 @@
             margin: 20px 0;
         }
 
+        .chart-fallback {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--gray-500);
+            text-align: center;
+        }
+
+        .chart-fallback .material-icons {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            color: var(--gray-300);
+        }
+
         /* Empty State */
         .empty-state {
             text-align: center;
@@ -989,6 +1035,21 @@
             background: var(--danger);
             color: var(--white);
             flex-shrink: 0;
+        }
+
+        .split-warning {
+            background: rgba(237, 137, 54, 0.1);
+            border: 1px solid rgba(237, 137, 54, 0.3);
+            color: var(--warning);
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .split-warning.show {
+            display: block;
         }
 
         /* Transaction History - Improved Layout */
@@ -1155,6 +1216,10 @@
         .date-total {
             font-weight: 700;
             color: var(--danger);
+        }
+
+        .date-total.positive {
+            color: var(--secondary);
         }
 
         /* Settle Up Summary */
@@ -1486,6 +1551,12 @@
             align-items: center;
             padding: 12px;
             border-bottom: 1px solid var(--gray-100);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .summary-detail-item:hover {
+            background: var(--gray-100);
         }
 
         .summary-detail-item:last-child {
@@ -1510,11 +1581,11 @@
 <header class="header">
     <div class="header-content">
         <h1>
-            <img src="favicon.png" alt="Logo" class="header-logo">
+            <div class="header-logo">💰</div>
             Expense Manager
         </h1>
         <div class="header-actions">
-            <button class="icon-btn" id="settingsBtn" title="Settings">
+            <button class="icon-btn" id="settingsBtn" title="Settings" aria-label="Settings">
                 <span class="material-icons">settings</span>
             </button>
         </div>
@@ -1564,9 +1635,9 @@
         <!-- Filter Section -->
         <div class="filter-section">
             <div class="filter-tabs" id="dashboardFilterTabs">
-                <button class="filter-tab active" data-filter="today">Today</button>
+                <button class="filter-tab" data-filter="today">Today</button>
                 <button class="filter-tab" data-filter="week">This Week</button>
-                <button class="filter-tab" data-filter="month">This Month</button>
+                <button class="filter-tab active" data-filter="month">This Month</button>
                 <button class="filter-tab" data-filter="all">All Time</button>
                 <button class="filter-tab" data-filter="custom">Custom</button>
             </div>
@@ -1585,6 +1656,12 @@
             </div>
         </div>
 
+        <!-- Filter Info Banner -->
+        <div class="filter-info" id="filterInfo">
+            <span class="filter-info-text">Showing transactions for <strong id="filterPeriodText">This Month</strong></span>
+            <span class="filter-info-count" id="filterCount">0 transactions</span>
+        </div>
+
         <!-- Chart Section -->
         <div class="card">
             <div class="card-header">
@@ -1593,7 +1670,7 @@
                     Expense Breakdown
                 </h3>
             </div>
-            <div class="chart-container">
+            <div class="chart-container" id="expenseChartContainer">
                 <canvas id="expenseChart"></canvas>
             </div>
         </div>
@@ -1626,9 +1703,9 @@
         <!-- Filter Section -->
         <div class="filter-section">
             <div class="filter-tabs" id="transactionsFilterTabs">
-                <button class="filter-tab active" data-filter="today">Today</button>
+                <button class="filter-tab" data-filter="today">Today</button>
                 <button class="filter-tab" data-filter="week">This Week</button>
-                <button class="filter-tab" data-filter="month">This Month</button>
+                <button class="filter-tab active" data-filter="month">This Month</button>
                 <button class="filter-tab" data-filter="all">All</button>
             </div>
         </div>
@@ -1664,7 +1741,7 @@
                     Monthly Overview
                 </h3>
             </div>
-            <div class="chart-container">
+            <div class="chart-container" id="monthlyChartContainer">
                 <canvas id="monthlyChart"></canvas>
             </div>
         </div>
@@ -1677,7 +1754,7 @@
                     Category Breakdown
                 </h3>
             </div>
-            <div class="chart-container">
+            <div class="chart-container" id="categoryChartContainer">
                 <canvas id="categoryChart"></canvas>
             </div>
         </div>
@@ -1716,29 +1793,29 @@
 
 <!-- Bottom Navigation -->
 <nav class="bottom-nav">
-    <button class="nav-item active" data-page="dashboardPage">
+    <button class="nav-item active" data-page="dashboardPage" aria-label="Home">
         <span class="material-icons">dashboard</span>
         <span>Home</span>
     </button>
-    <button class="nav-item" data-page="transactionsPage">
+    <button class="nav-item" data-page="transactionsPage" aria-label="Transactions">
         <span class="material-icons">receipt_long</span>
         <span>Transactions</span>
     </button>
-    <button class="nav-item add-btn" id="addExpenseBtn">
+    <button class="nav-item add-btn" id="addExpenseBtn" aria-label="Add Transaction">
         <span class="material-icons">add</span>
         <span></span>
     </button>
-    <button class="nav-item" data-page="statsPage">
+    <button class="nav-item" data-page="statsPage" aria-label="Statistics">
         <span class="material-icons">analytics</span>
         <span>Stats</span>
     </button>
-    <button class="nav-item" data-page="friendsPage">
+    <button class="nav-item" data-page="friendsPage" aria-label="Friends">
         <span class="material-icons">groups</span>
         <span>Friends</span>
     </button>
 </nav>
 
-<!-- Transaction Detail Modal (NEW) -->
+<!-- Transaction Detail Modal -->
 <div class="modal-overlay" id="transactionDetailModal">
     <div class="modal">
         <div class="modal-header">
@@ -1746,7 +1823,7 @@
                 <span class="material-icons">receipt</span>
                 Transaction Details
             </h2>
-            <button class="modal-close" id="closeTransactionDetailModal">
+            <button class="modal-close" id="closeTransactionDetailModal" aria-label="Close">
                 <span class="material-icons">close</span>
             </button>
         </div>
@@ -1756,7 +1833,7 @@
     </div>
 </div>
 
-<!-- Summary Detail Modal (NEW) -->
+<!-- Summary Detail Modal -->
 <div class="modal-overlay" id="summaryDetailModal">
     <div class="modal">
         <div class="modal-header">
@@ -1764,7 +1841,7 @@
                 <span class="material-icons">info</span>
                 Details
             </h2>
-            <button class="modal-close" id="closeSummaryDetailModal">
+            <button class="modal-close" id="closeSummaryDetailModal" aria-label="Close">
                 <span class="material-icons">close</span>
             </button>
         </div>
@@ -1787,7 +1864,7 @@
                 <span class="material-icons">add_circle</span>
                 Add Transaction
             </h2>
-            <button class="modal-close" id="closeExpenseModal">
+            <button class="modal-close" id="closeExpenseModal" aria-label="Close">
                 <span class="material-icons">close</span>
             </button>
         </div>
@@ -1917,6 +1994,10 @@
                             <span class="material-icons">add</span>
                             Add Person
                         </button>
+                        <div class="split-warning" id="splitWarning">
+                            <span class="material-icons" style="font-size: 16px; vertical-align: middle;">warning</span>
+                            Split amounts exceed total expense!
+                        </div>
                     </div>
                 </div>
 
@@ -1944,7 +2025,7 @@
                 <span class="material-icons">person_add</span>
                 Add Friend
             </h2>
-            <button class="modal-close" id="closeFriendModal">
+            <button class="modal-close" id="closeFriendModal" aria-label="Close">
                 <span class="material-icons">close</span>
             </button>
         </div>
@@ -1983,10 +2064,10 @@
                 <span class="material-icons">person</span>
                 Friend Details
             </h2>
-            <button class="edit-friend-btn" id="editFriendBtn" title="Edit">
+            <button class="edit-friend-btn" id="editFriendBtn" title="Edit" aria-label="Edit Friend">
                 <span class="material-icons">edit</span>
             </button>
-            <button class="modal-close" id="closeFriendDetailModal">
+            <button class="modal-close" id="closeFriendDetailModal" aria-label="Close">
                 <span class="material-icons">close</span>
             </button>
         </div>
@@ -2065,7 +2146,7 @@
                 <span class="material-icons">settings</span>
                 Settings
             </h2>
-            <button class="modal-close" id="closeSettingsModal">
+            <button class="modal-close" id="closeSettingsModal" aria-label="Close">
                 <span class="material-icons">close</span>
             </button>
         </div>
@@ -2163,8 +2244,9 @@
     };
 
     let db = null;
-    let currentFilter = 'today';
-    let currentTransactionsFilter = 'today';
+    // FIX: Changed default filter from 'today' to 'month' for better UX
+    let currentFilter = 'month';
+    let currentTransactionsFilter = 'month';
     let currentFriendId = null;
     let currentViewingExpenseId = null;
     let expenseChart = null;
@@ -2175,6 +2257,9 @@
     let updateTransactionCallback = null;
     let pendingSplitsForFriend = [];
     let allFriendsData = [];
+    let isSaving = false; // FIX: Prevent double-clicks
+    let searchTimeout = null; // FIX: Debounce search
+    let chartsAvailable = typeof Chart !== 'undefined'; // FIX: Check if Chart.js loaded
 
     // Category icons and colors
     const expenseCategories = {
@@ -2201,6 +2286,15 @@
 
     const allCategories = { ...expenseCategories, ...incomeCategories };
 
+    // Filter period labels
+    const filterLabels = {
+        'today': 'Today',
+        'week': 'This Week',
+        'month': 'This Month',
+        'all': 'All Time',
+        'custom': 'Custom Range'
+    };
+
     // ==================== LOADING FUNCTIONS ====================
     function showLoading() {
         document.getElementById('loadingOverlay').classList.remove('hidden');
@@ -2221,6 +2315,12 @@
     // Initialize IndexedDB
     async function initDB() {
         return new Promise((resolve, reject) => {
+            // FIX: Check if IndexedDB is supported
+            if (!window.indexedDB) {
+                reject(new Error('IndexedDB not supported. Try using a regular browser window.'));
+                return;
+            }
+
             const request = indexedDB.open(DB_NAME, 2);
 
             request.onerror = () => reject(request.error);
@@ -2328,14 +2428,20 @@
     }
 
     function formatDate(dateStr) {
-        const date = new Date(dateStr);
+        if (!dateStr) return 'Unknown';
+        const date = parseDate(dateStr);
         const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
         const yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
 
-        if (date.toDateString() === today.toDateString()) {
+        const dateOnly = new Date(date);
+        dateOnly.setHours(0, 0, 0, 0);
+
+        if (dateOnly.getTime() === today.getTime()) {
             return 'Today';
-        } else if (date.toDateString() === yesterday.toDateString()) {
+        } else if (dateOnly.getTime() === yesterday.getTime()) {
             return 'Yesterday';
         } else {
             return date.toLocaleDateString('en-IN', {
@@ -2347,7 +2453,8 @@
     }
 
     function formatFullDate(dateStr) {
-        const date = new Date(dateStr);
+        if (!dateStr) return 'Unknown';
+        const date = parseDate(dateStr);
         return date.toLocaleDateString('en-IN', {
             weekday: 'long',
             day: 'numeric',
@@ -2365,6 +2472,34 @@
         return `${hour12}:${minutes} ${ampm}`;
     }
 
+    // FIX: Improved date parsing to handle timezone issues
+    function parseDate(dateStr) {
+        if (!dateStr) return new Date();
+
+        // Handle "YYYY-MM-DD" format without timezone shift
+        if (typeof dateStr === 'string' && dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            const [year, month, day] = dateStr.split('-').map(Number);
+            return new Date(year, month - 1, day);
+        }
+
+        return new Date(dateStr);
+    }
+
+    // FIX: Compare dates without time component
+    function isSameDay(date1, date2) {
+        return date1.getFullYear() === date2.getFullYear() &&
+            date1.getMonth() === date2.getMonth() &&
+            date1.getDate() === date2.getDate();
+    }
+
+    // FIX: Get date string in YYYY-MM-DD format
+    function getDateString(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
     function showToast(message, duration = 3000) {
         const toast = document.getElementById('toast');
         toast.textContent = message;
@@ -2372,9 +2507,10 @@
         setTimeout(() => toast.classList.remove('show'), duration);
     }
 
+    // FIX: Completely rewritten date range function with proper date handling
     function getDateRange(filter) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
         let startDate, endDate;
 
@@ -2382,14 +2518,15 @@
             case 'today':
                 startDate = new Date(today);
                 endDate = new Date(today);
-                endDate.setHours(23, 59, 59, 999);
+                endDate.setDate(endDate.getDate() + 1);
+                endDate.setMilliseconds(-1);
                 break;
             case 'week':
                 startDate = new Date(today);
-                startDate.setDate(today.getDate() - today.getDay());
+                startDate.setDate(today.getDate() - today.getDay()); // Start of week (Sunday)
                 endDate = new Date(startDate);
-                endDate.setDate(endDate.getDate() + 6);
-                endDate.setHours(23, 59, 59, 999);
+                endDate.setDate(endDate.getDate() + 7);
+                endDate.setMilliseconds(-1);
                 break;
             case 'month':
                 startDate = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -2397,31 +2534,40 @@
                 endDate.setHours(23, 59, 59, 999);
                 break;
             case 'all':
-                startDate = new Date(0);
-                endDate = new Date(today);
-                endDate.setFullYear(endDate.getFullYear() + 100);
+                startDate = new Date(2000, 0, 1); // Far past
+                endDate = new Date(2100, 11, 31); // Far future
                 break;
             case 'custom':
                 const start = document.getElementById('startDate').value;
                 const end = document.getElementById('endDate').value;
                 if (start && end) {
-                    startDate = new Date(start);
-                    startDate.setHours(0, 0, 0, 0);
-                    endDate = new Date(end);
+                    startDate = parseDate(start);
+                    endDate = parseDate(end);
                     endDate.setHours(23, 59, 59, 999);
                 } else {
-                    startDate = new Date(0);
-                    endDate = new Date(today);
-                    endDate.setFullYear(endDate.getFullYear() + 100);
+                    startDate = new Date(2000, 0, 1);
+                    endDate = new Date(2100, 11, 31);
                 }
                 break;
             default:
-                startDate = new Date(0);
-                endDate = new Date(today);
-                endDate.setFullYear(endDate.getFullYear() + 100);
+                startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                endDate.setHours(23, 59, 59, 999);
         }
 
         return { startDate, endDate };
+    }
+
+    // FIX: Improved filter function for expenses
+    function filterExpensesByDateRange(expenses, filter) {
+        const { startDate, endDate } = getDateRange(filter);
+
+        return expenses.filter(e => {
+            const expenseDate = parseDate(e.date);
+            // Set to noon to avoid timezone edge cases
+            expenseDate.setHours(12, 0, 0, 0);
+            return expenseDate >= startDate && expenseDate <= endDate;
+        });
     }
 
     // ==================== PAGE NAVIGATION ====================
@@ -2480,7 +2626,7 @@
         }
     }
 
-    // ==================== TRANSACTION DETAIL VIEW (NEW) ====================
+    // ==================== TRANSACTION DETAIL VIEW ====================
     async function viewTransactionDetail(id) {
         const expense = await dbGet(STORES.expenses, id);
         if (!expense) return;
@@ -2585,15 +2731,10 @@
         });
     }
 
-    // ==================== SUMMARY CARD CLICK HANDLERS (NEW) ====================
+    // ==================== SUMMARY CARD CLICK HANDLERS ====================
     async function showSummaryDetail(type) {
         const expenses = await dbGetAll(STORES.expenses);
-        const { startDate, endDate } = getDateRange(currentFilter);
-
-        const filteredExpenses = expenses.filter(e => {
-            const expenseDate = new Date(e.date);
-            return expenseDate >= startDate && expenseDate <= endDate;
-        });
+        const filteredExpenses = filterExpensesByDateRange(expenses, currentFilter);
 
         let title = '';
         let content = '';
@@ -2605,7 +2746,7 @@
                 if (incomeItems.length === 0) {
                     content = '<div class="empty-state"><span class="material-icons">money_off</span><p>No income in this period</p></div>';
                 } else {
-                    content = incomeItems.map(e => `
+                    content = incomeItems.sort((a, b) => new Date(b.date) - new Date(a.date)).map(e => `
                         <div class="summary-detail-item" data-expense-id="${e.id}">
                             <div>
                                 <div style="font-weight:500;">${e.description}</div>
@@ -2623,7 +2764,7 @@
                 if (expenseItems.length === 0) {
                     content = '<div class="empty-state"><span class="material-icons">sentiment_satisfied</span><p>No expenses in this period</p></div>';
                 } else {
-                    content = expenseItems.map(e => `
+                    content = expenseItems.sort((a, b) => new Date(b.date) - new Date(a.date)).map(e => `
                         <div class="summary-detail-item" data-expense-id="${e.id}">
                             <div>
                                 <div style="font-weight:500;">${e.description}</div>
@@ -2713,7 +2854,7 @@
         document.getElementById('expenseModalTitle').innerHTML = '<span class="material-icons">add_circle</span> Add Transaction';
 
         const now = new Date();
-        document.getElementById('expenseDate').value = now.toISOString().split('T')[0];
+        document.getElementById('expenseDate').value = getDateString(now);
         document.getElementById('expenseTime').value = now.toTimeString().slice(0, 5);
 
         document.querySelectorAll('#categoryGrid .category-option').forEach(opt => opt.classList.remove('selected'));
@@ -2735,6 +2876,12 @@
         document.getElementById('splitToggle').classList.remove('active');
         document.getElementById('splitDetails').style.display = 'none';
         document.getElementById('splitItems').innerHTML = '';
+        document.getElementById('splitWarning').classList.remove('show');
+
+        // Reset save button
+        const saveBtn = document.getElementById('saveExpenseBtn');
+        saveBtn.disabled = false;
+        isSaving = false;
     }
 
     function switchTransactionType(type) {
@@ -2764,6 +2911,11 @@
         const friends = await dbGetAll(STORES.friends);
         const splitItems = document.getElementById('splitItems');
 
+        if (friends.length === 0) {
+            showToast('Add friends first to split expenses');
+            return;
+        }
+
         const itemId = generateId();
         const div = document.createElement('div');
         div.className = 'split-item';
@@ -2777,20 +2929,51 @@
         div.innerHTML = `
             <select class="split-friend">${friendOptions}</select>
             <input type="number" class="split-amount" placeholder="Amount" step="0.01" inputmode="decimal">
-            <button type="button" class="icon-btn" data-split-id="${itemId}">
+            <button type="button" class="icon-btn" data-split-id="${itemId}" aria-label="Remove">
                 <span class="material-icons">close</span>
             </button>
         `;
 
         splitItems.appendChild(div);
+
+        // Add listener to validate split amounts
+        div.querySelector('.split-amount').addEventListener('input', validateSplitAmounts);
     }
 
     function removeSplitItem(itemId) {
         const item = document.getElementById(`split-${itemId}`);
-        if (item) item.remove();
+        if (item) {
+            item.remove();
+            validateSplitAmounts();
+        }
+    }
+
+    // FIX: Validate split amounts don't exceed total
+    function validateSplitAmounts() {
+        const amount = parseFloat(document.getElementById('amount').value) || 0;
+        const splitItems = document.querySelectorAll('.split-item');
+        let totalSplit = 0;
+
+        splitItems.forEach(item => {
+            const splitAmount = parseFloat(item.querySelector('.split-amount').value) || 0;
+            totalSplit += splitAmount;
+        });
+
+        const warning = document.getElementById('splitWarning');
+        if (totalSplit > amount && amount > 0) {
+            warning.classList.add('show');
+            warning.textContent = `Split total (${formatCurrency(totalSplit)}) exceeds expense (${formatCurrency(amount)})!`;
+        } else {
+            warning.classList.remove('show');
+        }
+
+        return totalSplit <= amount || amount === 0;
     }
 
     async function saveExpense() {
+        // FIX: Prevent double-clicks
+        if (isSaving) return;
+
         const amount = parseFloat(document.getElementById('amount').value);
         const description = document.getElementById('description').value.trim();
         const date = document.getElementById('expenseDate').value;
@@ -2808,11 +2991,29 @@
             category = selected ? selected.dataset.category : 'income-other';
         }
 
-        if (!amount || !description) {
-            showToast('Please fill in all required fields');
+        // FIX: Better validation
+        if (!amount || amount <= 0) {
+            showToast('Please enter a valid amount');
             return;
         }
 
+        if (!description) {
+            showToast('Please enter a description');
+            return;
+        }
+
+        // FIX: Validate split amounts
+        const splitToggle = document.getElementById('splitToggle');
+        if (type === 'expense' && splitToggle.classList.contains('active')) {
+            if (!validateSplitAmounts()) {
+                showToast('Split amounts cannot exceed total expense');
+                return;
+            }
+        }
+
+        isSaving = true;
+        const saveBtn = document.getElementById('saveExpenseBtn');
+        saveBtn.disabled = true;
         showActionLoading();
 
         try {
@@ -2828,7 +3029,6 @@
                 createdAt: new Date().toISOString()
             };
 
-            const splitToggle = document.getElementById('splitToggle');
             if (type === 'expense' && splitToggle.classList.contains('active')) {
                 const splitItems = document.querySelectorAll('.split-item');
                 const splits = [];
@@ -2837,7 +3037,7 @@
                     const friendId = item.querySelector('.split-friend').value;
                     const splitAmount = parseFloat(item.querySelector('.split-amount').value);
 
-                    if (friendId && splitAmount) {
+                    if (friendId && splitAmount && splitAmount > 0) {
                         splits.push({ friendId, amount: splitAmount, settled: false });
 
                         await dbAdd(STORES.friendTransactions, {
@@ -2872,6 +3072,9 @@
         } catch (error) {
             hideActionLoading();
             showToast('Error saving transaction: ' + error.message);
+        } finally {
+            isSaving = false;
+            saveBtn.disabled = false;
         }
     }
 
@@ -2941,12 +3144,7 @@
     // ==================== DASHBOARD ====================
     async function loadDashboard() {
         const expenses = await dbGetAll(STORES.expenses);
-        const { startDate, endDate } = getDateRange(currentFilter);
-
-        const filteredExpenses = expenses.filter(e => {
-            const expenseDate = new Date(e.date);
-            return expenseDate >= startDate && expenseDate <= endDate;
-        });
+        const filteredExpenses = filterExpensesByDateRange(expenses, currentFilter);
 
         let totalIncome = 0;
         let totalExpense = 0;
@@ -2963,8 +3161,15 @@
         document.getElementById('totalExpense').textContent = formatCurrency(totalExpense);
         document.getElementById('totalBalance').textContent = formatCurrency(totalIncome - totalExpense);
 
+        // Update filter info banner
+        document.getElementById('filterPeriodText').textContent = filterLabels[currentFilter] || 'Selected Period';
+        document.getElementById('filterCount').textContent = `${filteredExpenses.length} transaction${filteredExpenses.length !== 1 ? 's' : ''}`;
+
         await updatePendingAmount();
-        loadRecentTransactions(filteredExpenses);
+
+        // FIX: Load recent transactions independently of filter
+        await loadRecentTransactions();
+
         updateExpenseChart(filteredExpenses);
     }
 
@@ -2998,11 +3203,14 @@
         document.getElementById('pendingAmount').textContent = formatCurrency(netPending);
     }
 
-    function loadRecentTransactions(expenses) {
+    // FIX: Recent transactions now loads ALL recent, regardless of filter
+    async function loadRecentTransactions() {
         const container = document.getElementById('recentTransactions');
-        const sorted = [...expenses].sort((a, b) => {
-            const dateA = new Date(a.date + 'T' + (a.time || '00:00'));
-            const dateB = new Date(b.date + 'T' + (b.time || '00:00'));
+        const allExpenses = await dbGetAll(STORES.expenses);
+
+        const sorted = [...allExpenses].sort((a, b) => {
+            const dateA = new Date(a.date + 'T' + (a.time || '23:59'));
+            const dateB = new Date(b.date + 'T' + (b.time || '23:59'));
             return dateB - dateA;
         }).slice(0, 5);
 
@@ -3049,6 +3257,20 @@
     }
 
     function updateExpenseChart(expenses) {
+        const container = document.getElementById('expenseChartContainer');
+
+        // FIX: Check if Chart.js is available
+        if (!chartsAvailable) {
+            container.innerHTML = `
+                <div class="chart-fallback">
+                    <span class="material-icons">pie_chart</span>
+                    <p>Charts unavailable</p>
+                    <small>Check your internet connection</small>
+                </div>
+            `;
+            return;
+        }
+
         const categoryTotals = {};
 
         expenses.filter(e => e.type === 'expense').forEach(e => {
@@ -3059,6 +3281,11 @@
         const data = Object.values(categoryTotals);
         const colors = labels.map(label => allCategories[label]?.color || '#718096');
 
+        // Ensure canvas exists
+        if (!document.getElementById('expenseChart')) {
+            container.innerHTML = '<canvas id="expenseChart"></canvas>';
+        }
+
         const ctx = document.getElementById('expenseChart').getContext('2d');
 
         if (expenseChart) {
@@ -3066,8 +3293,8 @@
         }
 
         if (data.length === 0) {
-            ctx.canvas.parentElement.innerHTML = `
-                <div class="empty-state" style="height: 250px; display: flex; flex-direction: column; justify-content: center;">
+            container.innerHTML = `
+                <div class="chart-fallback">
                     <span class="material-icons">pie_chart</span>
                     <p>No expense data to display</p>
                 </div>
@@ -3078,7 +3305,7 @@
         expenseChart = new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: labels.map(l => l.charAt(0).toUpperCase() + l.slice(1).replace('-', ' ')),
+                labels: labels.map(l => (l.charAt(0).toUpperCase() + l.slice(1)).replace('-', ' ')),
                 datasets: [{
                     data,
                     backgroundColor: colors,
@@ -3105,12 +3332,7 @@
     // ==================== TRANSACTIONS PAGE ====================
     async function loadTransactions() {
         const expenses = await dbGetAll(STORES.expenses);
-        const { startDate, endDate } = getDateRange(currentTransactionsFilter);
-
-        const filteredExpenses = expenses.filter(e => {
-            const expenseDate = new Date(e.date);
-            return expenseDate >= startDate && expenseDate <= endDate;
-        });
+        const filteredExpenses = filterExpensesByDateRange(expenses, currentTransactionsFilter);
 
         displayGroupedTransactions(filteredExpenses);
     }
@@ -3147,15 +3369,22 @@
                 return timeB.localeCompare(timeA);
             });
 
-            const dayTotal = dayExpenses.reduce((sum, e) => {
-                return e.type === 'expense' ? sum + e.amount : sum - e.amount;
-            }, 0);
+            let dayIncome = 0;
+            let dayExpense = 0;
+            dayExpenses.forEach(e => {
+                if (e.type === 'income') {
+                    dayIncome += e.amount;
+                } else {
+                    dayExpense += e.amount;
+                }
+            });
+            const dayNet = dayIncome - dayExpense;
 
             html += `
                 <div class="date-group">
                     <div class="date-header">
                         <span>${formatDate(date)}</span>
-                        <span class="date-total">${dayTotal >= 0 ? '-' : '+'}${formatCurrency(dayTotal)}</span>
+                        <span class="date-total ${dayNet >= 0 ? 'positive' : ''}">${dayNet >= 0 ? '+' : '-'}${formatCurrency(Math.abs(dayNet))}</span>
                     </div>
                     <ul class="expense-list">
                         ${dayExpenses.map(e => createExpenseItem(e)).join('')}
@@ -3171,12 +3400,7 @@
         const searchTerm = document.getElementById('searchTransactions').value.toLowerCase();
 
         const expenses = await dbGetAll(STORES.expenses);
-        const { startDate, endDate } = getDateRange(currentTransactionsFilter);
-
-        let filtered = expenses.filter(e => {
-            const expenseDate = new Date(e.date);
-            return expenseDate >= startDate && expenseDate <= endDate;
-        });
+        let filtered = filterExpensesByDateRange(expenses, currentTransactionsFilter);
 
         if (searchTerm) {
             filtered = filtered.filter(e =>
@@ -3207,13 +3431,25 @@
 
         document.getElementById('statTotalTransactions').textContent = totalTransactions;
         document.getElementById('statAvgExpense').textContent = formatCurrency(avgPerDay);
-        document.getElementById('statTopCategory').textContent = topCategory ? topCategory[0].charAt(0).toUpperCase() + topCategory[0].slice(1) : '-';
+        document.getElementById('statTopCategory').textContent = topCategory ? (topCategory[0].charAt(0).toUpperCase() + topCategory[0].slice(1)).replace('-', ' ') : '-';
 
         updateMonthlyChart(expenses);
         updateCategoryChart(expenseOnly);
     }
 
     function updateMonthlyChart(expenses) {
+        const container = document.getElementById('monthlyChartContainer');
+
+        if (!chartsAvailable) {
+            container.innerHTML = `
+                <div class="chart-fallback">
+                    <span class="material-icons">bar_chart</span>
+                    <p>Charts unavailable</p>
+                </div>
+            `;
+            return;
+        }
+
         const monthlyData = {};
         const now = new Date();
 
@@ -3224,7 +3460,7 @@
         }
 
         expenses.forEach(e => {
-            const date = new Date(e.date);
+            const date = parseDate(e.date);
             const key = date.toLocaleDateString('en-US', { month: 'short' });
 
             if (monthlyData[key]) {
@@ -3239,6 +3475,10 @@
         const labels = Object.keys(monthlyData);
         const incomeData = labels.map(l => monthlyData[l].income);
         const expenseData = labels.map(l => monthlyData[l].expense);
+
+        if (!document.getElementById('monthlyChart')) {
+            container.innerHTML = '<canvas id="monthlyChart"></canvas>';
+        }
 
         const ctx = document.getElementById('monthlyChart').getContext('2d');
 
@@ -3281,6 +3521,18 @@
     }
 
     function updateCategoryChart(expenses) {
+        const container = document.getElementById('categoryChartContainer');
+
+        if (!chartsAvailable) {
+            container.innerHTML = `
+                <div class="chart-fallback">
+                    <span class="material-icons">donut_large</span>
+                    <p>Charts unavailable</p>
+                </div>
+            `;
+            return;
+        }
+
         const categoryTotals = {};
 
         expenses.forEach(e => {
@@ -3291,6 +3543,10 @@
         const data = Object.values(categoryTotals);
         const colors = labels.map(label => allCategories[label]?.color || '#718096');
 
+        if (!document.getElementById('categoryChart')) {
+            container.innerHTML = '<canvas id="categoryChart"></canvas>';
+        }
+
         const ctx = document.getElementById('categoryChart').getContext('2d');
 
         if (categoryChart) {
@@ -3298,13 +3554,19 @@
         }
 
         if (data.length === 0) {
+            container.innerHTML = `
+                <div class="chart-fallback">
+                    <span class="material-icons">donut_large</span>
+                    <p>No data to display</p>
+                </div>
+            `;
             return;
         }
 
         categoryChart = new Chart(ctx, {
             type: 'polarArea',
             data: {
-                labels: labels.map(l => l.charAt(0).toUpperCase() + l.slice(1).replace('-', ' ')),
+                labels: labels.map(l => (l.charAt(0).toUpperCase() + l.slice(1)).replace('-', ' ')),
                 datasets: [{
                     data,
                     backgroundColor: colors.map(c => c + '80'),
@@ -3594,7 +3856,7 @@
                 amount: split.amount,
                 type: 'receive',
                 description: `Settled: ${split.description}`,
-                date: new Date().toISOString().split('T')[0],
+                date: getDateString(new Date()),
                 settledSplitId: split.id,
                 createdAt: new Date().toISOString()
             });
@@ -3693,7 +3955,7 @@
                     </span>
                 </div>
                 <div class="history-item-actions">
-                    <button class="icon-btn" data-delete-friend-tx="${tx.id}" title="Delete">
+                    <button class="icon-btn" data-delete-friend-tx="${tx.id}" title="Delete" aria-label="Delete transaction">
                         <span class="material-icons" style="font-size:18px;">delete</span>
                     </button>
                 </div>
@@ -3783,7 +4045,7 @@
                 amount,
                 type,
                 description: description || (type === 'give' ? 'Payment given' : 'Payment received'),
-                date: new Date().toISOString().split('T')[0],
+                date: getDateString(new Date()),
                 createdAt: new Date().toISOString()
             });
 
@@ -3834,7 +4096,7 @@
                         amount: Math.abs(balance),
                         type: balance > 0 ? 'receive' : 'give',
                         description: 'Settled up',
-                        date: new Date().toISOString().split('T')[0],
+                        date: getDateString(new Date()),
                         isSettlement: true,
                         createdAt: new Date().toISOString()
                     });
@@ -3926,14 +4188,15 @@
                 friends: await dbGetAll(STORES.friends),
                 friendTransactions: await dbGetAll(STORES.friendTransactions),
                 settings: JSON.parse(localStorage.getItem('settings') || '{}'),
-                exportDate: new Date().toISOString()
+                exportDate: new Date().toISOString(),
+                version: '2.0'
             };
 
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `expense-manager-backup-${new Date().toISOString().split('T')[0]}.json`;
+            a.download = `expense-manager-backup-${getDateString(new Date())}.json`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -3957,28 +4220,39 @@
             const text = await file.text();
             const data = JSON.parse(text);
 
-            if (data.expenses) {
+            // FIX: Validate imported data structure
+            if (!data || typeof data !== 'object') {
+                throw new Error('Invalid backup file format');
+            }
+
+            if (data.expenses && Array.isArray(data.expenses)) {
                 await dbClear(STORES.expenses);
                 for (const expense of data.expenses) {
-                    await dbAdd(STORES.expenses, expense);
+                    if (expense.id && expense.amount && expense.description) {
+                        await dbAdd(STORES.expenses, expense);
+                    }
                 }
             }
 
-            if (data.friends) {
+            if (data.friends && Array.isArray(data.friends)) {
                 await dbClear(STORES.friends);
                 for (const friend of data.friends) {
-                    await dbAdd(STORES.friends, friend);
+                    if (friend.id && friend.name) {
+                        await dbAdd(STORES.friends, friend);
+                    }
                 }
             }
 
-            if (data.friendTransactions) {
+            if (data.friendTransactions && Array.isArray(data.friendTransactions)) {
                 await dbClear(STORES.friendTransactions);
                 for (const tx of data.friendTransactions) {
-                    await dbAdd(STORES.friendTransactions, tx);
+                    if (tx.id && tx.friendId && tx.amount) {
+                        await dbAdd(STORES.friendTransactions, tx);
+                    }
                 }
             }
 
-            if (data.settings) {
+            if (data.settings && typeof data.settings === 'object') {
                 localStorage.setItem('settings', JSON.stringify(data.settings));
             }
 
@@ -4169,6 +4443,9 @@
             }
         });
 
+        // Amount input change - validate splits
+        document.getElementById('amount').addEventListener('input', validateSplitAmounts);
+
         // Dashboard Filter Tabs
         document.getElementById('dashboardFilterTabs').addEventListener('click', function(e) {
             const tab = e.target.closest('.filter-tab');
@@ -4203,11 +4480,17 @@
             loadTransactions();
         });
 
-        // Search Transactions
-        document.getElementById('searchTransactions').addEventListener('input', filterTransactions);
+        // FIX: Search Transactions with debounce
+        document.getElementById('searchTransactions').addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(filterTransactions, 300);
+        });
 
-        // Search Friends
-        document.getElementById('searchFriends').addEventListener('input', filterFriends);
+        // FIX: Search Friends with debounce
+        document.getElementById('searchFriends').addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(filterFriends, 300);
+        });
 
         // Recent Transactions - Click to View Detail
         document.getElementById('recentTransactions').addEventListener('click', function(e) {
@@ -4381,6 +4664,20 @@
             });
         });
 
+        // FIX: ESC key to close modals
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                // Close any open modal
+                document.querySelectorAll('.modal-overlay.show').forEach(modal => {
+                    modal.classList.remove('show');
+                });
+                document.querySelectorAll('.confirm-dialog.show').forEach(dialog => {
+                    dialog.classList.remove('show');
+                });
+                document.body.style.overflow = '';
+            }
+        });
+
         // Prevent form submission
         document.getElementById('expenseForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -4401,12 +4698,11 @@
             setupEventListeners();
             await loadDashboard();
 
+            // Set default date range for custom filter
             const today = new Date();
             const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-            document.getElementById('startDate').value = firstOfMonth.toISOString().split('T')[0];
-            document.getElementById('endDate').value = today.toISOString().split('T')[0];
-
-            console.log('Expense Manager initialized successfully!');
+            document.getElementById('startDate').value = getDateString(firstOfMonth);
+            document.getElementById('endDate').value = getDateString(today);
 
             // Delay hiding to show smooth animation
             setTimeout(() => {
