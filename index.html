@@ -153,22 +153,6 @@
             font-size: 1.2rem;
         }
 
-        .header-logo {
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            object-fit: contain;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 4px;
-        }
-
-        @media (max-width: 480px) {
-            .header-logo {
-                width: 28px;
-                height: 28px;
-            }
-        }
-
         @media (max-width: 480px) {
             .header-logo {
                 width: 28px;
@@ -261,7 +245,7 @@
             gap: 8px;
         }
 
-        /* Filter Info Banner - NEW */
+        /* Filter Info Banner */
         .filter-info {
             background: rgba(102, 126, 234, 0.1);
             border: 1px solid rgba(102, 126, 234, 0.2);
@@ -283,7 +267,7 @@
             color: var(--primary);
         }
 
-        /* Summary Cards - Now Clickable */
+        /* Summary Cards */
         .summary-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -567,12 +551,25 @@
             min-width: 0;
         }
 
+        /* FIX: Updated expense-title to not hide split badge */
         .expense-title {
             font-weight: 600;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            max-width: 100%;
+        }
+
+        /* FIX: New container for split badge - always visible */
+        .expense-split-indicator {
+            margin-bottom: 3px;
+        }
+
+        .expense-split-indicator .split-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .expense-meta {
@@ -709,7 +706,6 @@
             color: var(--gray-500);
         }
 
-        /* Pending split indicator for friend card */
         .friend-split-indicator {
             display: inline-flex;
             align-items: center;
@@ -1068,7 +1064,7 @@
             display: block;
         }
 
-        /* Transaction History - Improved Layout */
+        /* Transaction History */
         .transaction-history {
             max-height: 300px;
             overflow-y: auto;
@@ -1118,7 +1114,6 @@
             flex-shrink: 0;
         }
 
-        /* Fixed delete button visibility */
         .history-item-actions .icon-btn {
             background: rgba(245, 101, 101, 0.1);
             color: var(--danger);
@@ -1366,7 +1361,6 @@
             padding: 3px 8px;
             border-radius: 10px;
             font-size: 0.7rem;
-            margin-left: 5px;
         }
 
         /* Pending splits section */
@@ -2260,7 +2254,6 @@
     };
 
     let db = null;
-    // FIX: Changed default filter from 'today' to 'month' for better UX
     let currentFilter = 'month';
     let currentTransactionsFilter = 'month';
     let currentFriendId = null;
@@ -2273,9 +2266,10 @@
     let updateTransactionCallback = null;
     let pendingSplitsForFriend = [];
     let allFriendsData = [];
-    let isSaving = false; // FIX: Prevent double-clicks
-    let searchTimeout = null; // FIX: Debounce search
-    let chartsAvailable = typeof Chart !== 'undefined'; // FIX: Check if Chart.js loaded
+    let isSaving = false;
+    let isEditing = false; // FIX: Track if we're editing
+    let searchTimeout = null;
+    let chartsAvailable = typeof Chart !== 'undefined';
 
     // Category icons and colors
     const expenseCategories = {
@@ -2302,7 +2296,6 @@
 
     const allCategories = { ...expenseCategories, ...incomeCategories };
 
-    // Filter period labels
     const filterLabels = {
         'today': 'Today',
         'week': 'This Week',
@@ -2331,7 +2324,6 @@
     // Initialize IndexedDB
     async function initDB() {
         return new Promise((resolve, reject) => {
-            // FIX: Check if IndexedDB is supported
             if (!window.indexedDB) {
                 reject(new Error('IndexedDB not supported. Try using a regular browser window.'));
                 return;
@@ -2488,11 +2480,9 @@
         return `${hour12}:${minutes} ${ampm}`;
     }
 
-    // FIX: Improved date parsing to handle timezone issues
     function parseDate(dateStr) {
         if (!dateStr) return new Date();
 
-        // Handle "YYYY-MM-DD" format without timezone shift
         if (typeof dateStr === 'string' && dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
             const [year, month, day] = dateStr.split('-').map(Number);
             return new Date(year, month - 1, day);
@@ -2501,14 +2491,12 @@
         return new Date(dateStr);
     }
 
-    // FIX: Compare dates without time component
     function isSameDay(date1, date2) {
         return date1.getFullYear() === date2.getFullYear() &&
             date1.getMonth() === date2.getMonth() &&
             date1.getDate() === date2.getDate();
     }
 
-    // FIX: Get date string in YYYY-MM-DD format
     function getDateString(date) {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -2523,7 +2511,6 @@
         setTimeout(() => toast.classList.remove('show'), duration);
     }
 
-    // FIX: Completely rewritten date range function with proper date handling
     function getDateRange(filter) {
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -2539,7 +2526,7 @@
                 break;
             case 'week':
                 startDate = new Date(today);
-                startDate.setDate(today.getDate() - today.getDay()); // Start of week (Sunday)
+                startDate.setDate(today.getDate() - today.getDay());
                 endDate = new Date(startDate);
                 endDate.setDate(endDate.getDate() + 7);
                 endDate.setMilliseconds(-1);
@@ -2550,8 +2537,8 @@
                 endDate.setHours(23, 59, 59, 999);
                 break;
             case 'all':
-                startDate = new Date(2000, 0, 1); // Far past
-                endDate = new Date(2100, 11, 31); // Far future
+                startDate = new Date(2000, 0, 1);
+                endDate = new Date(2100, 11, 31);
                 break;
             case 'custom':
                 const start = document.getElementById('startDate').value;
@@ -2574,13 +2561,11 @@
         return { startDate, endDate };
     }
 
-    // FIX: Improved filter function for expenses
     function filterExpensesByDateRange(expenses, filter) {
         const { startDate, endDate } = getDateRange(filter);
 
         return expenses.filter(e => {
             const expenseDate = parseDate(e.date);
-            // Set to noon to avoid timezone edge cases
             expenseDate.setHours(12, 0, 0, 0);
             return expenseDate >= startDate && expenseDate <= endDate;
         });
@@ -2602,7 +2587,6 @@
             }
         });
 
-        // Load page data
         setTimeout(() => {
             switch(pageId) {
                 case 'dashboardPage':
@@ -2622,13 +2606,15 @@
     }
 
     // ==================== MODAL MANAGEMENT ====================
-    function openModal(modalId) {
+    // FIX: Added skipReset parameter to prevent resetting form when editing
+    function openModal(modalId, skipReset = false) {
         const modal = document.getElementById(modalId);
         if (modal) {
             modal.classList.add('show');
             document.body.style.overflow = 'hidden';
 
-            if (modalId === 'addExpenseModal') {
+            // Only reset form when adding NEW transaction, not when editing
+            if (modalId === 'addExpenseModal' && !skipReset) {
                 resetExpenseForm();
             }
         }
@@ -2639,6 +2625,10 @@
         if (modal) {
             modal.classList.remove('show');
             document.body.style.overflow = '';
+        }
+        // Reset editing flag when closing expense modal
+        if (modalId === 'addExpenseModal') {
+            isEditing = false;
         }
     }
 
@@ -2735,7 +2725,6 @@
         document.getElementById('transactionDetailContent').innerHTML = content;
         openModal('transactionDetailModal');
 
-        // Add event listeners
         document.getElementById('editTransactionBtn').addEventListener('click', () => {
             closeModal('transactionDetailModal');
             editExpense(currentViewingExpenseId);
@@ -2894,10 +2883,10 @@
         document.getElementById('splitItems').innerHTML = '';
         document.getElementById('splitWarning').classList.remove('show');
 
-        // Reset save button
         const saveBtn = document.getElementById('saveExpenseBtn');
         saveBtn.disabled = false;
         isSaving = false;
+        isEditing = false;
     }
 
     function switchTransactionType(type) {
@@ -2952,7 +2941,6 @@
 
         splitItems.appendChild(div);
 
-        // Add listener to validate split amounts
         div.querySelector('.split-amount').addEventListener('input', validateSplitAmounts);
     }
 
@@ -2964,7 +2952,6 @@
         }
     }
 
-    // FIX: Validate split amounts don't exceed total
     function validateSplitAmounts() {
         const amount = parseFloat(document.getElementById('amount').value) || 0;
         const splitItems = document.querySelectorAll('.split-item');
@@ -2987,7 +2974,6 @@
     }
 
     async function saveExpense() {
-        // FIX: Prevent double-clicks
         if (isSaving) return;
 
         const amount = parseFloat(document.getElementById('amount').value);
@@ -3007,7 +2993,6 @@
             category = selected ? selected.dataset.category : 'income-other';
         }
 
-        // FIX: Better validation
         if (!amount || amount <= 0) {
             showToast('Please enter a valid amount');
             return;
@@ -3018,7 +3003,6 @@
             return;
         }
 
-        // FIX: Validate split amounts
         const splitToggle = document.getElementById('splitToggle');
         if (type === 'expense' && splitToggle.classList.contains('active')) {
             if (!validateSplitAmounts()) {
@@ -3045,9 +3029,19 @@
                 createdAt: new Date().toISOString()
             };
 
+            // Only add new splits if NOT editing or if splits changed
             if (type === 'expense' && splitToggle.classList.contains('active')) {
                 const splitItems = document.querySelectorAll('.split-item');
                 const splits = [];
+
+                // If editing, remove old split transactions first
+                if (isEditing) {
+                    const oldFriendTx = await dbGetAll(STORES.friendTransactions);
+                    const relatedTx = oldFriendTx.filter(tx => tx.expenseId === id && tx.isSplit);
+                    for (const tx of relatedTx) {
+                        await dbDelete(STORES.friendTransactions, tx.id);
+                    }
+                }
 
                 for (const item of splitItems) {
                     const friendId = item.querySelector('.split-friend').value;
@@ -3072,15 +3066,22 @@
                 }
 
                 expense.splits = splits;
+            } else if (isEditing) {
+                // If editing and splits are disabled, remove old splits
+                const oldFriendTx = await dbGetAll(STORES.friendTransactions);
+                const relatedTx = oldFriendTx.filter(tx => tx.expenseId === id && tx.isSplit);
+                for (const tx of relatedTx) {
+                    await dbDelete(STORES.friendTransactions, tx.id);
+                }
+                expense.splits = [];
             }
 
             await dbPut(STORES.expenses, expense);
 
             hideActionLoading();
             closeModal('addExpenseModal');
-            showToast(document.getElementById('transactionId').value ? 'Transaction updated!' : 'Transaction added!');
+            showToast(isEditing ? 'Transaction updated!' : 'Transaction added!');
 
-            // Refresh current page
             const activePage = document.querySelector('.page.active');
             if (activePage) {
                 showPage(activePage.id);
@@ -3091,13 +3092,22 @@
         } finally {
             isSaving = false;
             saveBtn.disabled = false;
+            isEditing = false;
         }
     }
 
+    // FIX: Completely rewritten editExpense function
     async function editExpense(id) {
         const expense = await dbGet(STORES.expenses, id);
-        if (!expense) return;
+        if (!expense) {
+            showToast('Transaction not found');
+            return;
+        }
 
+        // Set editing flag BEFORE opening modal
+        isEditing = true;
+
+        // Fill in all form fields
         document.getElementById('transactionId').value = expense.id;
         document.getElementById('amount').value = expense.amount;
         document.getElementById('description').value = expense.description;
@@ -3107,19 +3117,66 @@
         document.getElementById('transactionType').value = expense.type;
         document.getElementById('expenseModalTitle').innerHTML = '<span class="material-icons">edit</span> Edit Transaction';
 
+        // Switch to correct transaction type
         switchTransactionType(expense.type);
 
+        // Select the correct category
         if (expense.type === 'expense') {
             document.querySelectorAll('#categoryGrid .category-option').forEach(opt => {
-                opt.classList.toggle('selected', opt.dataset.category === expense.category);
+                opt.classList.remove('selected');
+                if (opt.dataset.category === expense.category) {
+                    opt.classList.add('selected');
+                }
             });
         } else {
             document.querySelectorAll('#incomeCategoryGrid .category-option').forEach(opt => {
-                opt.classList.toggle('selected', opt.dataset.category === expense.category);
+                opt.classList.remove('selected');
+                if (opt.dataset.category === expense.category) {
+                    opt.classList.add('selected');
+                }
             });
         }
 
-        openModal('addExpenseModal');
+        // Clear existing split items first
+        document.getElementById('splitItems').innerHTML = '';
+        document.getElementById('splitToggle').classList.remove('active');
+        document.getElementById('splitDetails').style.display = 'none';
+
+        // FIX: Load existing splits if any
+        if (expense.splits && expense.splits.length > 0 && expense.type === 'expense') {
+            document.getElementById('splitToggle').classList.add('active');
+            document.getElementById('splitDetails').style.display = 'block';
+
+            const friends = await dbGetAll(STORES.friends);
+
+            for (const split of expense.splits) {
+                const itemId = generateId();
+                const div = document.createElement('div');
+                div.className = 'split-item';
+                div.id = `split-${itemId}`;
+
+                let friendOptions = '<option value="">Select friend</option>';
+                friends.forEach(f => {
+                    const selected = f.id === split.friendId ? 'selected' : '';
+                    friendOptions += `<option value="${f.id}" ${selected}>${f.name}</option>`;
+                });
+
+                div.innerHTML = `
+                    <select class="split-friend">${friendOptions}</select>
+                    <input type="number" class="split-amount" placeholder="Amount" step="0.01" inputmode="decimal" value="${split.amount}">
+                    <button type="button" class="icon-btn" data-split-id="${itemId}" aria-label="Remove">
+                        <span class="material-icons">close</span>
+                    </button>
+                `;
+
+                document.getElementById('splitItems').appendChild(div);
+
+                div.querySelector('.split-amount').addEventListener('input', validateSplitAmounts);
+            }
+        }
+
+        // Open modal with skipReset = true to prevent form from being cleared
+        openModal('addExpenseModal', true);
     }
 
     async function deleteExpense(id) {
@@ -3177,15 +3234,11 @@
         document.getElementById('totalExpense').textContent = formatCurrency(totalExpense);
         document.getElementById('totalBalance').textContent = formatCurrency(totalIncome - totalExpense);
 
-        // Update filter info banner
         document.getElementById('filterPeriodText').textContent = filterLabels[currentFilter] || 'Selected Period';
         document.getElementById('filterCount').textContent = `${filteredExpenses.length} transaction${filteredExpenses.length !== 1 ? 's' : ''}`;
 
         await updatePendingAmount();
-
-        // FIX: Load recent transactions independently of filter
         await loadRecentTransactions();
-
         updateExpenseChart(filteredExpenses);
     }
 
@@ -3219,7 +3272,6 @@
         document.getElementById('pendingAmount').textContent = formatCurrency(netPending);
     }
 
-    // FIX: Recent transactions now loads ALL recent, regardless of filter
     async function loadRecentTransactions() {
         const container = document.getElementById('recentTransactions');
         const allExpenses = await dbGetAll(STORES.expenses);
@@ -3244,6 +3296,7 @@
         container.innerHTML = sorted.map(expense => createExpenseItem(expense)).join('');
     }
 
+    // FIX: Updated createExpenseItem to show split badge on separate line
     function createExpenseItem(expense) {
         const cat = allCategories[expense.category] || expenseCategories.other;
         const isExpense = expense.type === 'expense';
@@ -3256,10 +3309,15 @@
                     <span class="material-icons">${cat.icon}</span>
                 </div>
                 <div class="expense-details">
-                    <div class="expense-title">
-                        ${expense.description}
-                        ${pendingSplits > 0 ? `<span class="split-badge"><span class="material-icons" style="font-size:10px;">group</span> ${pendingSplits} pending</span>` : ''}
+                    <div class="expense-title">${expense.description}</div>
+                    ${pendingSplits > 0 ? `
+                    <div class="expense-split-indicator">
+                        <span class="split-badge">
+                            <span class="material-icons" style="font-size:10px;">group</span>
+                            ${pendingSplits} pending split${pendingSplits > 1 ? 's' : ''}
+                        </span>
                     </div>
+                    ` : ''}
                     <div class="expense-meta">
                         <span><span class="material-icons">event</span>${formatDate(expense.date)}</span>
                         ${expense.time ? `<span><span class="material-icons">schedule</span>${formatTime(expense.time)}</span>` : ''}
@@ -3275,7 +3333,6 @@
     function updateExpenseChart(expenses) {
         const container = document.getElementById('expenseChartContainer');
 
-        // FIX: Check if Chart.js is available
         if (!chartsAvailable) {
             container.innerHTML = `
                 <div class="chart-fallback">
@@ -3297,7 +3354,6 @@
         const data = Object.values(categoryTotals);
         const colors = labels.map(label => allCategories[label]?.color || '#718096');
 
-        // Ensure canvas exists
         if (!document.getElementById('expenseChart')) {
             container.innerHTML = '<canvas id="expenseChart"></canvas>';
         }
@@ -4236,7 +4292,6 @@
             const text = await file.text();
             const data = JSON.parse(text);
 
-            // FIX: Validate imported data structure
             if (!data || typeof data !== 'object') {
                 throw new Error('Invalid backup file format');
             }
@@ -4496,13 +4551,13 @@
             loadTransactions();
         });
 
-        // FIX: Search Transactions with debounce
+        // Search Transactions with debounce
         document.getElementById('searchTransactions').addEventListener('input', function() {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(filterTransactions, 300);
         });
 
-        // FIX: Search Friends with debounce
+        // Search Friends with debounce
         document.getElementById('searchFriends').addEventListener('input', function() {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(filterFriends, 300);
@@ -4676,16 +4731,22 @@
                 if (e.target === overlay) {
                     overlay.classList.remove('show');
                     document.body.style.overflow = '';
+                    // Reset editing flag if expense modal is closed
+                    if (overlay.id === 'addExpenseModal') {
+                        isEditing = false;
+                    }
                 }
             });
         });
 
-        // FIX: ESC key to close modals
+        // ESC key to close modals
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                // Close any open modal
                 document.querySelectorAll('.modal-overlay.show').forEach(modal => {
                     modal.classList.remove('show');
+                    if (modal.id === 'addExpenseModal') {
+                        isEditing = false;
+                    }
                 });
                 document.querySelectorAll('.confirm-dialog.show').forEach(dialog => {
                     dialog.classList.remove('show');
@@ -4742,6 +4803,9 @@
     window.addEventListener('popstate', function() {
         document.querySelectorAll('.modal-overlay.show').forEach(modal => {
             modal.classList.remove('show');
+            if (modal.id === 'addExpenseModal') {
+                isEditing = false;
+            }
         });
         document.querySelectorAll('.confirm-dialog.show').forEach(dialog => {
             dialog.classList.remove('show');
